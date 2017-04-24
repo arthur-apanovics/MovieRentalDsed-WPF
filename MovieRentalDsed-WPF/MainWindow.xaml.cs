@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MovieDatabase;
 using MovieDatabase.Data;
+using MovieDatabase.Models;
 
 namespace MovieRentalDsed_WPF
 {
@@ -38,7 +39,8 @@ namespace MovieRentalDsed_WPF
 
         private void btnEditMovie_Click(object sender, RoutedEventArgs e)
         {
-            
+            var editDialog = new EditMovieWindow(MovieNames.SelectedItem as MovieModel);
+            editDialog.ShowDialog();
         }
     }
 }
