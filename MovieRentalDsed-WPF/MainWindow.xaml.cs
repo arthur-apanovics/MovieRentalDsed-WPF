@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,11 +17,13 @@ using System.Windows.Shapes;
 using MovieDatabase;
 using MovieDatabase.Data;
 using MovieDatabase.Models;
+using MovieRentalDsed_WPF.Delegates;
 
 namespace MovieRentalDsed_WPF
 {
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             InitializeComponent();
@@ -41,6 +44,13 @@ namespace MovieRentalDsed_WPF
         {
             var editDialog = new EditMovieWindow(MovieNames.SelectedItem as MovieModel);
             editDialog.ShowDialog();
+            
+
+        }
+
+        private void updateMovies(object sender, DatabaseChangedEventArgs e)
+        {
+            tiMovies.DataContext = new MovieData();
         }
     }
 }

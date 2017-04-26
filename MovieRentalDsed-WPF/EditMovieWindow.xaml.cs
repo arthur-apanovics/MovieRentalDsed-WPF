@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace MovieRentalDsed_WPF
     /// <summary>
     /// Interaction logic for EditMovieWindow.xaml
     /// </summary>
-    public partial class EditMovieWindow : Window
+    public partial class EditMovieWindow
     {
         public EditMovieWindow(MovieModel movie)
         {
@@ -39,9 +40,8 @@ namespace MovieRentalDsed_WPF
         }
 
         /// <section>
-        /// Constructor & click methods here
+        /// Constructor methods & click methods here
         /// </section>
-        
 
         private void PopulateFields(MovieModel movie)
         {
@@ -74,6 +74,8 @@ namespace MovieRentalDsed_WPF
                 var update = new UpdateTables();
                 update.UpdateMovie(movie);
 
+                
+                
                 this.Close();
             }
             catch (Exception exception)
@@ -91,6 +93,7 @@ namespace MovieRentalDsed_WPF
 
             return output;
         }
+
 
     }
 }

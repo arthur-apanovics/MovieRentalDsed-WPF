@@ -66,6 +66,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Delegates\DatabaseChangedDelegates.cs" />
+    <Compile Include="Delegates\DatabaseChangedEventArgs.cs" />
     <Compile Include="EditMovieWindow.xaml.cs">
       <DependentUpon>EditMovieWindow.xaml</DependentUpon>
     </Compile>

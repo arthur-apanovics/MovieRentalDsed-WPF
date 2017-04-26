@@ -44,7 +44,7 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <TextBox x:Name="txtSearchMovies" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="1,1,1,0" AutomationProperties.HelpText="Search for a movie name" Text="Search for a movie..." FontStyle="Italic" Padding="5,0,0,0"/>
-                        <ListBox x:Name="MovieNames" ItemTemplate="{DynamicResource MovieModelNameTemplate}" ItemsSource="{Binding MovieList}" SelectedItem="{Binding SelectedMovie, Mode=TwoWay, UpdateSourceTrigger=Default}" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Margin="0" Grid.Row="1" FontSize="14" SelectedIndex="0"/>
+                        <ListBox x:Name="MovieNames" ItemTemplate="{DynamicResource MovieModelNameTemplate}" ItemsSource="{Binding MovieList, Mode=OneWay}" SelectedItem="{Binding SelectedMovie, Mode=TwoWay, UpdateSourceTrigger=Default}" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Margin="0" Grid.Row="1" FontSize="14" SelectedIndex="0"/>
                     </Grid>
                     <Grid x:Name="MovieDetailsGrid" Grid.Column="1" Margin="50,0">
                         <Grid.RowDefinitions>

@@ -9,6 +9,10 @@ namespace MovieDatabase
 {
     public class UpdateTables
     {
+        /// <summary>
+        /// Helper methods to communicate with DatabaseOperations.cs
+        /// </summary>
+        
         public void UpdateMovie(MovieModel movie)
         {
             var database = new DatabaseOperations();
