@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MovieRentalDsed_WPF.Delegates
+namespace MovieDatabase.Delegates
 {
     public class DatabaseChangedEventArgs : EventArgs
     {

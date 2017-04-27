@@ -43,12 +43,14 @@
   <ItemGroup>
     <Compile Include="Data\CustomerData.cs" />
     <Compile Include="Data\MovieData.cs" />
+    <Compile Include="Delegates\DatabaseChangedDelegates.cs" />
+    <Compile Include="Delegates\DatabaseChangedEvent.cs" />
+    <Compile Include="Delegates\DatabaseChangedEventArgs.cs" />
     <Compile Include="Models\CustomerModel.cs" />
     <Compile Include="DatabaseOperations.cs" />
     <Compile Include="Models\MovieModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UpdateTables.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

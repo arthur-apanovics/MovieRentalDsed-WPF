@@ -13,18 +13,21 @@ namespace MovieDatabase.Data
 {
     public class MovieData : INotifyPropertyChanged
     {
-        private ObservableCollection<MovieModel> _movieList;
         private MovieModel _selectedMovie;
+        private string _filter = null;
 
-        public ObservableCollection<MovieModel> MovieList
+        public MovieData()
         {
-            get { return _movieList; }
-            set
-            {
-                _movieList = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MovieList)));
-            }
+            DatabaseOperations database = new DatabaseOperations();
+
+            MovieList = database.GetAllMovieDataToList().Result;
         }
+
+        /// <summary>
+        /// Properties 
+        /// </summary>
+
+        public ObservableCollection<MovieModel> MovieList { get; set; }
 
         public MovieModel SelectedMovie
         {
@@ -36,11 +39,45 @@ namespace MovieDatabase.Data
             }
         }
 
-        public MovieData()
+        public string Filter
         {
-            DatabaseOperations database = new DatabaseOperations();
+            get { return _filter; }
+            set
+            {
+                if (value == _filter)
+                    return;
+                _filter = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filter)));
+                PerformFiltering();
+            }
+        }
 
-            MovieList = database.GetAllMovieDataToList().Result;
+        /// <summary>
+        /// Methods
+        /// </summary>
+
+        private void PerformFiltering()
+        {
+            if (_filter == null)
+                _filter = string.Empty;
+
+            var lowerCaseFilter = Filter.ToLowerInvariant().Trim();
+
+            var result =
+                MovieList.Where(d => d.Title.ToLowerInvariant().Contains(lowerCaseFilter)).ToList();
+
+            var toRemove = MovieList.Except(result).ToList();
+
+            foreach (var x in toRemove)
+                MovieList.Remove(x);
+
+            var resultCount = result.Count;
+            for (int i = 0; i < resultCount; i++)
+            {
+                var resultItem = result[i];
+                if (i + 1 > MovieList.Count || !MovieList[i].Equals(resultItem))
+                    MovieList.Insert(i, resultItem);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

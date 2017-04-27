@@ -45,19 +45,29 @@ namespace MovieRentalDsed_WPF
 
         private void PopulateFields(MovieModel movie)
         {
-            txtTitle.Text = NullChecker(movie.Title);
-            txtCopies.Text = NullChecker(movie.Copies.ToString());
-            txtGenre.Text = NullChecker(movie.Genre);
-            txtId.Text = NullChecker(movie.MovieId.ToString());
-            txtPlot.Text = NullChecker(movie.Plot);
-            txtPrice.Text = NullChecker(movie.RentalPrice.ToString());
-            txtRating.Text = NullChecker(movie.Rating);
-            txtYear.Text = NullChecker(movie.Year);
+            try
+            {
+                txtTitle.Text = NullChecker(movie.Title);
+                txtCopies.Text = NullChecker(movie.Copies.ToString());
+                txtGenre.Text = NullChecker(movie.Genre);
+                txtId.Text = NullChecker(movie.MovieId.ToString());
+                txtPlot.Text = NullChecker(movie.Plot);
+                txtPrice.Text = NullChecker(movie.RentalPrice.ToString());
+                txtRating.Text = NullChecker(movie.Rating);
+                txtYear.Text = NullChecker(movie.Year);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+                Console.WriteLine(e);
+            }
         }
 
         private void UpdateSender()
         {
             MovieModel movie = null;
+
+            // Too lazy to cath user input exceprions. Catch all instead.
             try
             {
                 movie = new MovieModel(
@@ -71,16 +81,16 @@ namespace MovieRentalDsed_WPF
                     txtGenre.Text
                 );
 
-                var update = new UpdateTables();
-                update.UpdateMovie(movie);
+                var update = new DatabaseOperations();
+                update.UpdateMovieInTable(movie);
 
-                
-                
                 this.Close();
             }
             catch (Exception exception)
             {
-                MessageBox.Show(exception.ToString());
+                MessageBox.Show(exception.Message);
+
+                Console.WriteLine($"ERROR UPDATING DATABASE:\n{exception}");
                 return;
             }
         }
@@ -93,7 +103,5 @@ namespace MovieRentalDsed_WPF
 
             return output;
         }
-
-
     }
 }
