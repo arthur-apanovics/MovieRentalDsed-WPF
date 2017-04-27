@@ -78,8 +78,7 @@ namespace MovieRentalDsed_WPF
                     Convert.ToInt32(txtPrice.Text),
                     Convert.ToInt32(txtCopies.Text),
                     txtPlot.Text,
-                    txtGenre.Text
-                );
+                    txtGenre.Text);
 
                 var update = new DatabaseOperations();
                 update.UpdateMovieInTable(movie);

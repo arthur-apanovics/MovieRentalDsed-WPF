@@ -91,7 +91,7 @@
                             <Button x:Name="btnEditMovie" Content="Edit Movie Details" Padding="1,10" Margin="0,20" Background="#FFD8B9B9" FontWeight="Bold" Click="btnEditMovie_Click"/>
                         </StackPanel>
                         <StackPanel x:Name="MovieIdStack" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Button Content="New Movie" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3" Width="90"/>
+                            <Button x:Name="btnNewMovie" Content="New Movie" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3" Width="90" Click="btnNewMovie_Click"/>
                             <TextBlock x:Name="lblMovieId" TextWrapping="Wrap" Text="Movie ID:" Margin="0" Foreground="#FF9E9E9E"/>
                             <TextBlock x:Name="MovieId" TextWrapping="Wrap" Margin="0" Text="{Binding SelectedMovie.MovieId}" Foreground="#FF9E9E9E"/>
                         </StackPanel>

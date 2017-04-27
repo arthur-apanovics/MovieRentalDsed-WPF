@@ -56,6 +56,24 @@ namespace MovieRentalDsed_WPF
             DatabaseOperations.DataUpdateComplete -= UpdateAllData;
         }
 
+        private void btnNewMovie_Click(object sender, RoutedEventArgs e)
+        {
+            //todo cleanup repeated code.
+            // create an event listener to refresh info on database updates
+            DatabaseOperations.DataUpdateComplete += UpdateAllData;
+
+            int currentSelectedItem = MovieNames.SelectedIndex;
+
+            var addDialog = new AddNewMovieWindow();
+            addDialog.ShowDialog();
+
+            // on data update, selected item gets reset to -1. This method sets the value back to what it was before the update.
+            ReselectMovieAfterDataUpdate(currentSelectedItem);
+
+            // since the event is static (to make it global), detach listener to avoid duplicate event triggers
+            DatabaseOperations.DataUpdateComplete -= UpdateAllData;
+        }
+
         private void UpdateAllData(object sender, EventArgs e)
         {
             tiMovies.DataContext = new MovieData();
