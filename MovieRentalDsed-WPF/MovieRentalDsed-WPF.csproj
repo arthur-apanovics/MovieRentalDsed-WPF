@@ -118,13 +118,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\movie-film.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\film-90.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\vhs-edited.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\search.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

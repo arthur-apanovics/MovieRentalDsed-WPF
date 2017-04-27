@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Title="DSED's Crazy Movie Rental" d:DesignWidth="1502" d:DesignHeight="862" MinWidth="500" MinHeight="300">
     <Window.Resources>
+        <AlternationConverter x:Key="AlternationConverter"/>
         <DataTemplate x:Key="MovieModelNameTemplate">
             <Grid Height="Auto" Width="Auto" Margin="0,15">
                 <StackPanel Orientation="Horizontal" Margin="0" HorizontalAlignment="Stretch">
@@ -43,9 +44,32 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <TextBox x:Name="txtSearchMovies" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="1,1,1,0" AutomationProperties.HelpText="Search for a movie name" FontStyle="Italic" Padding="5,0,0,0" Background="#FFFFF8ED" Height="30" FontSize="14" VerticalContentAlignment="Center" TextDecorations="{x:Null}" Text="{Binding Filter, Mode=TwoWay ,UpdateSourceTrigger=PropertyChanged, TargetNullValue='Search for a movie...'}"/>
-                        <ListBox x:Name="MovieNames" ItemTemplate="{DynamicResource MovieModelNameTemplate}" ItemsSource="{Binding MovieList, Mode=OneWay}" SelectedItem="{Binding SelectedMovie, Mode=TwoWay, UpdateSourceTrigger=Default}" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Margin="0" Grid.Row="1" FontSize="14" SelectedIndex="0" BorderThickness="1,0,1,1">
-                        </ListBox>
+                        <TextBox x:Name="txtSearchMovies" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="1" AutomationProperties.HelpText="Search for a movie name" FontStyle="Italic" Padding="5,0,0,0" Background="#FFE9FBFF" Height="30" FontSize="14" VerticalContentAlignment="Center" TextDecorations="{x:Null}" Text="{Binding Filter, FallbackValue=Search for a movie..., Mode=TwoWay, TargetNullValue=Search for a movie..., UpdateSourceTrigger=PropertyChanged}"/>
+                        <Image x:Name="icoSearch" HorizontalAlignment="Right" VerticalAlignment="Center" Source="Assets/search.png" Width="20" Height="20" Margin="0,0,10,0" Opacity="0.5">
+                            <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=txtSearchMovies, Path=Text.Length}" Value="0">
+                                        <Setter Property="Visibility"  Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                            </Image.Style>
+                        </Image>
+                        <Button x:Name="btnClearText" Content="X" HorizontalAlignment="Right" VerticalAlignment="Center" Width="20" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="1,-1,1,1" Margin="0,0,10,0" FontWeight="Bold" BorderBrush="#FF4F4F4F" Background="{x:Null}" Foreground="#FF4F4F4F" Click="btnClearText_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=txtSearchMovies}"  Value="">
+                                            <Setter Property="Visibility"  Value="Hidden"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <ListBox x:Name="MovieNames" ItemTemplate="{DynamicResource MovieModelNameTemplate}" ItemsSource="{Binding MovieList, Mode=OneWay}" SelectedItem="{Binding SelectedMovie, Mode=TwoWay, UpdateSourceTrigger=Default}" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Margin="0" Grid.Row="1" FontSize="14" SelectedIndex="0" BorderThickness="1,0,1,1"/>
                     </Grid>
                     <Grid x:Name="MovieDetailsGrid" Grid.Column="1" Margin="50,0">
                         <Grid.RowDefinitions>
@@ -54,6 +78,16 @@
                             <RowDefinition Height="2*"/>
                             <RowDefinition Height="50"/>
                         </Grid.RowDefinitions>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Hidden" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=MovieNames, Path=SelectedItems.Count}" Value="1">
+                                        <Setter Property="Visibility"  Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
                         <StackPanel x:Name="titleStack" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock x:Name="title" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="48" FontWeight="Bold" Text="{Binding SelectedMovie.Title}" />
                             <TextBlock x:Name="year" HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding SelectedMovie.Year}" VerticalAlignment="Bottom" FontSize="24" Margin="20,0,0,0" FontStyle="Italic" FontFamily="Segoe UI Light"/>
@@ -86,9 +120,9 @@
                             <Image x:Name="logo" Source="Assets/vhs-edited.png"/>
                         </Border>
                         <StackPanel x:Name="MovieActionsStack" Grid.Row="1" Margin="20,50,20,0" Grid.RowSpan="2">
-                            <Button x:Name="btnIssueMovie" Content="Issue Movie" Padding="0,10" Margin="0,20" Background="#FFA3EA94" FontWeight="Bold" Click="btnIssueMovie_Click"/>
-                            <Button x:Name="btnReturnMovie" Content="Return Movie" Padding="0,10" Margin="0,20" Background="#FF94C7EA" FontWeight="Bold"/>
-                            <Button x:Name="btnEditMovie" Content="Edit Movie Details" Padding="1,10" Margin="0,20" Background="#FFD8B9B9" FontWeight="Bold" Click="btnEditMovie_Click"/>
+                            <Button x:Name="btnIssueMovie" Content="Issue Movie" Padding="0,10" Margin="0,20" Background="#FFA3EA94" FontWeight="Bold" Click="btnIssueMovie_Click" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}"/>
+                            <Button x:Name="btnReturnMovie" Content="Return Movie" Padding="0,10" Margin="0,20" Background="#FF94C7EA" FontWeight="Bold" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}"/>
+                            <Button x:Name="btnEditMovie" Content="Edit Movie Details" Padding="1,10" Margin="0,20" Background="#FFD8B9B9" FontWeight="Bold" Click="btnEditMovie_Click" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}"/>
                         </StackPanel>
                         <StackPanel x:Name="MovieIdStack" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <Button x:Name="btnNewMovie" Content="New Movie" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3" Width="90" Click="btnNewMovie_Click"/>
@@ -118,6 +152,6 @@
         <StatusBar Grid.Row="1">
             <ProgressBar Style="{DynamicResource SimpleProgressBar}" Width="100" Height="13"/>
         </StatusBar>
-        <Button x:Name="btnReload" Content="Reload" HorizontalAlignment="Right" Margin="0,2,10,0" VerticalAlignment="Top" Click="btnReload_Click"/>
+        <Button x:Name="btnReload" Content="Debug.Reload" HorizontalAlignment="Right" Margin="0,11,10,0" VerticalAlignment="Top" Click="btnReload_Click"/>
     </Grid>
 </Window>

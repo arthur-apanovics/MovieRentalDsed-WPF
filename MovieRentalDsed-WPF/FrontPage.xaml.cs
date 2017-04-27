@@ -78,13 +78,18 @@ namespace MovieRentalDsed_WPF
         {
             tiMovies.DataContext = new MovieData();
             tiCustomers.DataContext = new CustomerData();
-
+            
             Console.WriteLine($"Data in window has been refreshed, from {this.ToString()}");
         }
 
         private void ReselectMovieAfterDataUpdate(int previousSelection)
         {
             MovieNames.SelectedIndex = previousSelection;
+        }
+
+        private void btnClearText_Click(object sender, RoutedEventArgs e)
+        {
+            txtSearchMovies.Text = string.Empty;
         }
     }
 }
