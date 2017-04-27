@@ -13,14 +13,18 @@ namespace MovieDatabase.Data
 {
     public class MovieData : INotifyPropertyChanged
     {
+        private List<MovieModel> _allMovieData;
         private MovieModel _selectedMovie;
         private string _filter = null;
 
         public MovieData()
         {
-            DatabaseOperations database = new DatabaseOperations();
+            MovieList = new ObservableCollection<MovieModel>();
 
-            MovieList = database.GetAllMovieDataToList().Result;
+            DatabaseOperations database = new DatabaseOperations();
+            _allMovieData = database.GetAllMovieDataToList().Result;
+
+            PerformFiltering();
         }
 
         /// <summary>
@@ -64,7 +68,7 @@ namespace MovieDatabase.Data
             var lowerCaseFilter = Filter.ToLowerInvariant().Trim();
 
             var result =
-                MovieList.Where(d => d.Title.ToLowerInvariant().Contains(lowerCaseFilter)).ToList();
+                _allMovieData.Where(d => d.Title.ToLowerInvariant().Contains(lowerCaseFilter)).ToList();
 
             var toRemove = MovieList.Except(result).ToList();
 
