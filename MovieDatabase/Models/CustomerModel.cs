@@ -13,6 +13,8 @@ namespace MovieDatabase.Models
         public string LastName { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }
+        public string FullName { get; set; }
+
 
         public CustomerModel(int id, string fName, string lName, string addr, string phone)
         {
@@ -21,6 +23,7 @@ namespace MovieDatabase.Models
             LastName = lName;
             Address = addr;
             Phone = phone;
+            FullName = $"{fName} {lName}";
         }
     }
 }

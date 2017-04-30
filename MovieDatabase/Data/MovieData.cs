@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using MovieDatabase.Annotations;
 using MovieDatabase.Models;
 
 namespace MovieDatabase.Data
@@ -15,7 +14,9 @@ namespace MovieDatabase.Data
     {
         private List<MovieModel> _allMovieData;
         private MovieModel _selectedMovie;
-        private string _filter = null;
+        private string _filter;
+        private List<RentedMovieModel> _selectedMovieRentalStatus;
+        //private Dictionary<RentedMovieModel, MovieModel> rentedDict;
 
         public MovieData()
         {
@@ -23,6 +24,8 @@ namespace MovieDatabase.Data
 
             DatabaseOperations database = new DatabaseOperations();
             _allMovieData = database.GetAllMovieDataToList().Result;
+
+            RentedMovies = new RentedMovieData().RentedMovies;
 
             PerformFiltering();
         }
@@ -33,12 +36,27 @@ namespace MovieDatabase.Data
 
         public ObservableCollection<MovieModel> MovieList { get; set; }
 
+        public List<RentedMovieModel> RentedMovies { get; set; }
+
+        public List<RentedMovieModel> SelectedMovieRentalStatus
+        {
+            get { return _selectedMovieRentalStatus; }
+            set
+            {
+                _selectedMovieRentalStatus = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedMovieRentalStatus)));
+            }
+        }
+
         public MovieModel SelectedMovie
         {
             get { return _selectedMovie; }
             set
             {
+                SelectedMovieRentalStatus = value != null ? RentedMovies.FindAll(x => x.MovieId.Equals(value.MovieId)) : null;
+
                 _selectedMovie = value;
+
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedMovie)));
             }
         }
@@ -84,12 +102,20 @@ namespace MovieDatabase.Data
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        //[NotifyPropertyChangedInvocator]
-        //protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        //private Dictionary<RentedMovieModel, MovieModel> PopulateRentals(List<MovieModel> movies, List<RentedMovieModel> rentals)
         //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //    var results = new Dictionary<RentedMovieModel, MovieModel>();
+
+        //    for (int i = 0; i < movies.Count; i++)
+        //    {
+        //        var findMovie = movies.Where(d => d.MovieId.Equals(rentals[i].MovieId));
+        //        results.Add(rentals[i], findMovie as MovieModel);
+        //        //movies.Find(x => x.MovieId == rentals[i].MovieId);
+        //    }
+
+        //    return results;
         //}
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

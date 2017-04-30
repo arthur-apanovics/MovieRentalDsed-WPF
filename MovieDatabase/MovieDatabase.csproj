@@ -44,13 +44,14 @@
     <Compile Include="DatabaseConnectionString.cs" />
     <Compile Include="Data\CustomerData.cs" />
     <Compile Include="Data\MovieData.cs" />
+    <Compile Include="Data\RentedMovieData.cs" />
     <Compile Include="Delegates\DatabaseChangedDelegates.cs" />
     <Compile Include="Delegates\DatabaseChangedEvent.cs" />
     <Compile Include="Delegates\DatabaseChangedEventArgs.cs" />
     <Compile Include="Models\CustomerModel.cs" />
     <Compile Include="DatabaseOperations.cs" />
     <Compile Include="Models\MovieModel.cs" />
-    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Models\RentedMovieModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

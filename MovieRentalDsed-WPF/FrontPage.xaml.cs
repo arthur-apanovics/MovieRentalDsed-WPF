@@ -17,7 +17,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MovieDatabase;
 using MovieDatabase.Data;
-using MovieDatabase.Delegates;
 using MovieDatabase.Models;
 
 namespace MovieRentalDsed_WPF
@@ -27,6 +26,7 @@ namespace MovieRentalDsed_WPF
         public MainWindow()
         {
             InitializeComponent();
+            //TODO Add a dialog box for database server credentials.
         }
 
         private void btnReload_Click(object sender, RoutedEventArgs e)
@@ -39,33 +39,25 @@ namespace MovieRentalDsed_WPF
 
         }
 
-        private void btnEditMovie_Click(object sender, RoutedEventArgs e)
+        private void btnMovieOperation_Click(object sender, RoutedEventArgs e)
         {
             // create an event listener to refresh info on database updates
             DatabaseOperations.DataUpdateComplete += UpdateAllData;
 
+            var btnType = sender as Button;
             int currentSelectedItem = MovieNames.SelectedIndex;
 
-            var editDialog = new EditMovieWindow(MovieNames.SelectedItem as MovieModel);
-            editDialog.ShowDialog();
-
-            // on data update, selected item gets reset to -1. This method sets the value back to what it was before the update.
-            ReselectMovieAfterDataUpdate(currentSelectedItem);
-
-            // since the event is static (to make it global), detach listener to avoid duplicate event triggers
-            DatabaseOperations.DataUpdateComplete -= UpdateAllData;
-        }
-
-        private void btnNewMovie_Click(object sender, RoutedEventArgs e)
-        {
-            //todo cleanup repeated code.
-            // create an event listener to refresh info on database updates
-            DatabaseOperations.DataUpdateComplete += UpdateAllData;
-
-            int currentSelectedItem = MovieNames.SelectedIndex;
-
-            var addDialog = new AddNewMovieWindow();
-            addDialog.ShowDialog();
+            //todo_done cleanup repeated code.
+            if (btnType.Name == "btnEditMovie")
+            {
+                var editDialog = new EditMovieWindow(MovieNames.SelectedItem as MovieModel);
+                editDialog.ShowDialog();
+            }
+            else
+            {
+                var addDialog = new AddNewMovieWindow();
+                addDialog.ShowDialog();
+            }
 
             // on data update, selected item gets reset to -1. This method sets the value back to what it was before the update.
             ReselectMovieAfterDataUpdate(currentSelectedItem);
@@ -78,7 +70,7 @@ namespace MovieRentalDsed_WPF
         {
             tiMovies.DataContext = new MovieData();
             tiCustomers.DataContext = new CustomerData();
-            
+
             Console.WriteLine($"Data in window has been refreshed, from {this.ToString()}");
         }
 
@@ -89,7 +81,8 @@ namespace MovieRentalDsed_WPF
 
         private void btnClearText_Click(object sender, RoutedEventArgs e)
         {
-            txtSearchMovies.Text = string.Empty;
+            txtSearchMovies.Text = String.Empty;
+            txtSearchCustomers.Text = string.Empty;
         }
     }
 }

@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MovieRentalDsed_WPF"
-        xmlns:MovieDatabase="clr-namespace:MovieDatabase;assembly=MovieDatabase" xmlns:Data="clr-namespace:MovieDatabase.Data;assembly=MovieDatabase" xmlns:Properties="clr-namespace:MovieRentalDsed_WPF.Properties" x:Class="MovieRentalDsed_WPF.MainWindow"
+        xmlns:MovieDatabase="clr-namespace:MovieDatabase;assembly=MovieDatabase" xmlns:Data="clr-namespace:MovieDatabase.Data;assembly=MovieDatabase" xmlns:Properties="clr-namespace:MovieRentalDsed_WPF.Properties" xmlns:XamlConverters="clr-namespace:MovieRentalDsed_WPF.XamlConverters" x:Class="MovieRentalDsed_WPF.MainWindow"
         mc:Ignorable="d"
-        Title="DSED's Crazy Movie Rental" d:DesignWidth="1502" d:DesignHeight="862" MinWidth="500" MinHeight="300">
+        Title="DSED's Crazy Movie Rental" d:DesignWidth="1532" d:DesignHeight="924" MinWidth="500" MinHeight="600">
     <Window.Resources>
+        <XamlConverters:DateMinToString x:Key="DateMinToString"/>
         <AlternationConverter x:Key="AlternationConverter"/>
         <DataTemplate x:Key="MovieModelNameTemplate">
             <Grid Height="Auto" Width="Auto" Margin="0,15">
@@ -18,6 +19,38 @@
                     <TextBlock x:Name="perenthR" TextWrapping="Wrap" Text=")" Margin="0" FontWeight="Normal" FontStyle="Italic" FontSize="14"/>
                 </StackPanel>
             </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="RentedMovieModelTemplate">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <TextBlock Text="Rented to:" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding FirstName}" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding LastName}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <TextBlock Text="Issued on:" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding DateIssued, StringFormat=\{0:d\}}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <TextBlock Text="Returned on:" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding DateReturned, Converter={StaticResource DateMinToString}, StringFormat=\{0:d\}}"/>
+                    </StackPanel>
+                    <!--<Rectangle Fill="#FFA4A4A4" Height="1" Stroke="{x:Null}" Margin="0,-1,0,0"/>-->
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="CustomerModelTemplate">
+            <StackPanel Margin="0,0,0,5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding FirstName}" Margin="0,0,5,0" FontSize="16"/>
+                    <TextBlock Text="{Binding LastName}" FontSize="16"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Width="Auto" HorizontalAlignment="Left">
+                    <TextBlock TextWrapping="Wrap" Text="Phone:" Margin="0,0,5,0" FontSize="12"/>
+                    <TextBlock Text="{Binding Phone}" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
         </DataTemplate>
     </Window.Resources>
     <Grid x:Name="BaseGrid">
@@ -44,22 +77,22 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <TextBox x:Name="txtSearchMovies" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="1" AutomationProperties.HelpText="Search for a movie name" FontStyle="Italic" Padding="5,0,0,0" Background="#FFE9FBFF" Height="30" FontSize="14" VerticalContentAlignment="Center" TextDecorations="{x:Null}" Text="{Binding Filter, FallbackValue=Search for a movie..., Mode=TwoWay, TargetNullValue=Search for a movie..., UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="txtSearchMovies" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="1" AutomationProperties.HelpText="Search for a movie" FontStyle="Italic" Padding="5,0,0,0" Background="#FFE9FBFF" Height="30" FontSize="14" VerticalContentAlignment="Center" TextDecorations="{x:Null}" Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <Image x:Name="icoSearch" HorizontalAlignment="Right" VerticalAlignment="Center" Source="Assets/search.png" Width="20" Height="20" Margin="0,0,10,0" Opacity="0.5">
                             <Image.Style>
-                            <Style TargetType="Image">
-                                <Setter Property="Visibility" Value="Hidden"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ElementName=txtSearchMovies, Path=Text.Length}" Value="0">
-                                        <Setter Property="Visibility"  Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
+                                <Style TargetType="{x:Type Image}">
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text.Length, ElementName=txtSearchMovies}" Value="0">
+                                            <Setter Property="Visibility"  Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
                             </Image.Style>
                         </Image>
-                        <Button x:Name="btnClearText" Content="X" HorizontalAlignment="Right" VerticalAlignment="Center" Width="20" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="1,-1,1,1" Margin="0,0,10,0" FontWeight="Bold" BorderBrush="#FF4F4F4F" Background="{x:Null}" Foreground="#FF4F4F4F" Click="btnClearText_Click">
+                        <Button x:Name="btnClearTextMovies" Content="X" HorizontalAlignment="Right" VerticalAlignment="Center" Width="20" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="1,-1,1,1" Margin="0,0,10,0" FontWeight="Bold" BorderBrush="#FF4F4F4F" Background="{x:Null}" Foreground="#FF4F4F4F" Click="btnClearText_Click">
                             <Button.Style>
-                                <Style TargetType="Button">
+                                <Style TargetType="{x:Type Button}">
                                     <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Text, ElementName=txtSearchMovies}"  Value="">
@@ -79,17 +112,17 @@
                             <RowDefinition Height="50"/>
                         </Grid.RowDefinitions>
                         <Grid.Style>
-                            <Style TargetType="Grid">
+                            <Style TargetType="{x:Type Grid}">
                                 <Setter Property="Visibility" Value="Hidden" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ElementName=MovieNames, Path=SelectedItems.Count}" Value="1">
+                                    <DataTrigger Binding="{Binding SelectedItems.Count, ElementName=MovieNames}" Value="1">
                                         <Setter Property="Visibility"  Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
                         <StackPanel x:Name="titleStack" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock x:Name="title" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="48" FontWeight="Bold" Text="{Binding SelectedMovie.Title}" />
+                            <TextBlock x:Name="title" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="48" FontWeight="Bold" Text="{Binding SelectedMovie.Title, FallbackValue=Movie Title}" />
                             <TextBlock x:Name="year" HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding SelectedMovie.Year}" VerticalAlignment="Bottom" FontSize="24" Margin="20,0,0,0" FontStyle="Italic" FontFamily="Segoe UI Light"/>
                         </StackPanel>
                         <StackPanel x:Name="propsStack" Orientation="Horizontal" Grid.Row="1" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -112,22 +145,28 @@
                     </Grid>
                     <Grid x:Name="MovieOperationsGrid" Background="WhiteSmoke" Grid.Column="2" >
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height="0.5*"/>
+                            <RowDefinition Height="220"/>
+                            <RowDefinition Height="275"/>
                             <RowDefinition Height="30"/>
                         </Grid.RowDefinitions>
                         <Border Background="#FF8ABCC7" BorderThickness="0,0,0,5" BorderBrush="#FF858585" Padding="10">
                             <Image x:Name="logo" Source="Assets/vhs-edited.png"/>
                         </Border>
-                        <StackPanel x:Name="MovieActionsStack" Grid.Row="1" Margin="20,50,20,0" Grid.RowSpan="2">
-                            <Button x:Name="btnIssueMovie" Content="Issue Movie" Padding="0,10" Margin="0,20" Background="#FFA3EA94" FontWeight="Bold" Click="btnIssueMovie_Click" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}"/>
-                            <Button x:Name="btnReturnMovie" Content="Return Movie" Padding="0,10" Margin="0,20" Background="#FF94C7EA" FontWeight="Bold" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}"/>
-                            <Button x:Name="btnEditMovie" Content="Edit Movie Details" Padding="1,10" Margin="0,20" Background="#FFD8B9B9" FontWeight="Bold" Click="btnEditMovie_Click" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}"/>
+                        <StackPanel x:Name="MovieActionsStack" Grid.Row="1" Margin="20,20,20,0" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}">
+                            <Button x:Name="btnIssueMovie" Content="Issue Movie" Padding="0,10" Margin="0,10" Background="#FFA3EA94" FontWeight="Bold" Click="btnIssueMovie_Click"/>
+                            <Button x:Name="btnReturnMovie" Content="Return Movie" Padding="0,10" Margin="0,10" Background="#FF94C7EA" FontWeight="Bold"/>
+                            <Button x:Name="btnEditMovie" Content="Edit Movie Details" Padding="1,10" Margin="0,10" Background="#FFD8B9B9" FontWeight="Bold" Click="btnMovieOperation_Click"/>
                         </StackPanel>
-                        <StackPanel x:Name="MovieIdStack" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Button x:Name="btnNewMovie" Content="New Movie" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3" Width="90" Click="btnNewMovie_Click"/>
+
+                        <StackPanel x:Name="MovieIdStack" Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,3">
+                            <Button x:Name="btnNewMovie" Content="New Movie" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3" Width="90" Click="btnMovieOperation_Click"/>
                             <TextBlock x:Name="lblMovieId" TextWrapping="Wrap" Text="Movie ID:" Margin="0" Foreground="#FF9E9E9E"/>
                             <TextBlock x:Name="MovieId" TextWrapping="Wrap" Margin="0" Text="{Binding SelectedMovie.MovieId}" Foreground="#FF9E9E9E"/>
+                        </StackPanel>
+                        <StackPanel x:Name="RentalHistoryStack" Margin="20,0,20,20" Orientation="Vertical" Grid.Row="2">
+                            <TextBlock TextWrapping="Wrap" Text="Rental history" Margin="2,0,0,0"/>
+                            <ListBox x:Name="rented" ItemTemplate="{DynamicResource RentedMovieModelTemplate}" ItemsSource="{Binding SelectedMovieRentalStatus}" Background="#FFF9F9F9" MinHeight="236"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -136,17 +175,96 @@
                 <TabItem.DataContext>
                     <Data:CustomerData/>
                 </TabItem.DataContext>
-                <Grid x:Name="customerGrid" Background="#FFE5E5E5">
-                    <DataGrid x:Name="dgCustomers" AutoGenerateColumns="False" ItemsSource="{Binding CustomerList}">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding CustId}" Header="CustId"/>
-                            <DataGridTextColumn Binding="{Binding Address}" Header="Address"/>
-                            <DataGridTextColumn Binding="{Binding FirstName}" Header="FirstName"/>
-                            <DataGridTextColumn Binding="{Binding LastName}" Header="LastName"/>
-                            <DataGridTextColumn Binding="{Binding Phone}" Header="Phone"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                <Grid x:Name="customerGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.8*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid x:Name="CustomerList">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBox x:Name="txtSearchCustomers" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="1" AutomationProperties.HelpText="Search for a customer" FontStyle="Italic" Padding="5,0,0,0" Background="#FFE9FBFF" Height="30" FontSize="14" VerticalContentAlignment="Center" TextDecorations="{x:Null}" Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Image x:Name="icoSearchCustomer" HorizontalAlignment="Right" VerticalAlignment="Center" Source="Assets/search.png" Width="20" Height="20" Margin="0,0,10,0" Opacity="0.5">
+                            <Image.Style>
+                                <Style TargetType="{x:Type Image}">
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text.Length, ElementName=txtSearchCustomers}" Value="0">
+                                            <Setter Property="Visibility"  Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <Button x:Name="btnClearTextCustomer" Content="X" HorizontalAlignment="Right" VerticalAlignment="Center" Width="20" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="1,-1,1,1" Margin="0,0,10,0" FontWeight="Bold" BorderBrush="#FF4F4F4F" Background="{x:Null}" Foreground="#FF4F4F4F" Click="btnClearText_Click">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=txtSearchCustomers}"  Value="">
+                                            <Setter Property="Visibility"  Value="Hidden"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <ListBox ItemTemplate="{DynamicResource CustomerModelTemplate}" ItemsSource="{Binding CustomerList}" Grid.Row="1" SelectedIndex="0" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                    <Grid x:Name="CustomerDetails" Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="2*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel x:Name="CustDetails" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0">
+                            <StackPanel x:Name="NameStack" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock x:Name="lblFirstName" TextWrapping="Wrap" Text="{Binding SelectedCustomer.FirstName, FallbackValue=FirstName}" Margin="0,0,5,0" FontSize="48" FontWeight="Bold"/>
+                                <TextBlock x:Name="lblLastName" TextWrapping="Wrap" Text="{Binding SelectedCustomer.LastName, FallbackValue=LastName, Mode=OneWay}" FontSize="48" FontWeight="Bold"/>
+                            </StackPanel>
+                            <TextBlock x:Name="lblAddress" TextWrapping="Wrap" Text="{Binding SelectedCustomer.Address, FallbackValue=Address, Mode=OneWay}" FontSize="24"/>
+                            <TextBlock x:Name="lblPhone" TextWrapping="Wrap" Text="{Binding SelectedCustomer.Phone, FallbackValue=Phone}" HorizontalAlignment="Left" FontSize="24"/>
+                        </StackPanel>
+                        <StackPanel x:Name="CustRentals" Orientation="Horizontal" Grid.Row="1"/>
+                        <StackPanel x:Name="CustMapStack" Orientation="Vertical" Grid.Row="2" Margin="20">
+                            <TextBlock TextWrapping="Wrap" Text="Customer location:"/>
+                            <Image x:Name="map" Source="dummy-map.jpg" Stretch="UniformToFill"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid x:Name="CustomerOperationsGrid" Background="WhiteSmoke" Margin="0" Grid.Column="2" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.5*"/>
+                            <RowDefinition Height="220"/>
+                            <RowDefinition Height="275"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <Border Background="#FFC4C78A" BorderThickness="0,0,0,5" BorderBrush="#FF858585" Padding="10">
+                            <Image x:Name="CustLogo" Source="user.png"/>
+                        </Border>
+                        <StackPanel x:Name="CustActionsStack1" Grid.Row="1" Margin="20,20,20,0" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}">
+                            <Button x:Name="btnIssueMovieToCust" Content="Issue Movie to Customer" Padding="0,10" Margin="0,10" Background="#FFA3EA94" FontWeight="Bold" Click="btnIssueMovie_Click"/>
+                            <Button x:Name="btnReturnMovieToCust" Content="Return Rented Movie" Padding="0,10" Margin="0,10" Background="#FF94C7EA" FontWeight="Bold"/>
+                            <Button x:Name="btnEditCust" Content="Edit Customer Details" Padding="1,10" Margin="0,10" Background="#FFD8B9B9" FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <StackPanel x:Name="CustIdStack" Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,3">
+                            <Button x:Name="btnNewCustomer" Content="New Customer" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3"/>
+                            <TextBlock x:Name="lblCustId" TextWrapping="Wrap" Text="Customer ID:" Margin="0" Foreground="#FF9E9E9E"/>
+                            <TextBlock x:Name="CustId" TextWrapping="Wrap" Margin="0" Text="{Binding SelectedCustomer.CustId}" Foreground="#FF9E9E9E"/>
+                        </StackPanel>
+                        <StackPanel x:Name="RentalHistoryStack1" Margin="20,0,20,20" Orientation="Vertical" Grid.Row="2"/>
+                    </Grid>
                 </Grid>
+            </TabItem>
+            <TabItem x:Name="tiTest" Header="Rented Test">
+                <DataGrid x:Name="rentedMovies" ItemsSource="{Binding RentedMovies}">
+                    <DataGrid.DataContext>
+                        <Data:RentedMovieData/>
+                    </DataGrid.DataContext>
+
+                </DataGrid>
             </TabItem>
         </TabControl>
         <StatusBar Grid.Row="1">
