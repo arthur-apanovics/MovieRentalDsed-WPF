@@ -38,13 +38,13 @@ namespace MovieDatabase.Data
 
         public List<RentedMovieModel> RentedMovies { get; set; }
 
-        public List<RentedMovieModel> SelectedMovieRentalStatus
+        public List<RentedMovieModel> SelectedMovieRentalHistory
         {
             get { return _selectedMovieRentalStatus; }
             set
             {
                 _selectedMovieRentalStatus = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedMovieRentalStatus)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedMovieRentalHistory)));
             }
         }
 
@@ -53,7 +53,7 @@ namespace MovieDatabase.Data
             get { return _selectedMovie; }
             set
             {
-                SelectedMovieRentalStatus = value != null ? RentedMovies.FindAll(x => x.MovieId.Equals(value.MovieId)) : null;
+                SelectedMovieRentalHistory = value != null ? RentedMovies.FindAll(x => x.MovieId.Equals(value.MovieId)) : null;
 
                 _selectedMovie = value;
 

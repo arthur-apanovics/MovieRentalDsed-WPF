@@ -17,8 +17,11 @@ namespace MovieDatabase.Data
         private CustomerModel _selectedCustomer;
         private string _filter;
         private List<CustomerModel> _allCustomers;
+        private List<RentedMovieModel> _allRentedMovies;
 
         public ObservableCollection<CustomerModel> CustomerList { get; set; }
+        public List<RentedMovieModel> CustomerRentalHistory { get; set; }
+        public List<RentedMovieModel> CustomerCurrentRentals { get; set; }
 
         public CustomerModel SelectedCustomer
         {
@@ -26,8 +29,50 @@ namespace MovieDatabase.Data
             set
             {
                 _selectedCustomer = value;
+
+                // find rentals for selected customer and update properties.
+                FindCustomerRentedMovies(value, _allRentedMovies);
+
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedCustomer)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomerRentalHistory)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomerCurrentRentals)));
             }
+        }
+
+        private void FindCustomerRentedMovies(CustomerModel selectedCustomer, List<RentedMovieModel> allRentals)
+        {
+            CustomerRentalHistory = new List<RentedMovieModel>();
+            CustomerCurrentRentals = new List<RentedMovieModel>();
+
+            for (int i = 0; i < allRentals.Count; i++)
+            {
+                if (selectedCustomer.CustId == allRentals[i].CustomerId)
+                {
+                    // if rental has been returned, add to past rental list
+                    if (allRentals[i].DateReturned != DateTime.MinValue)
+                    {
+                        CustomerRentalHistory.Add(allRentals[i]);
+                    }
+                    // else add to current, unreturned rental list
+                    else
+                    {
+                        CustomerCurrentRentals.Add(allRentals[i]);
+                    }
+                }
+            }
+        }
+
+        // CTOR here
+        public CustomerData()
+        {
+            CustomerList = new ObservableCollection<CustomerModel>();
+
+
+            DatabaseOperations database = new DatabaseOperations();
+            _allCustomers = database.GetAllCustomerDataToList().Result;
+            _allRentedMovies = new RentedMovieData().RentedMovies;
+
+            PerformFiltering();
         }
 
         public string Filter
@@ -43,15 +88,6 @@ namespace MovieDatabase.Data
             }
         }
 
-        public CustomerData()
-        {
-            CustomerList = new ObservableCollection<CustomerModel>();
-
-            DatabaseOperations database = new DatabaseOperations();
-            _allCustomers = database.GetAllCustomerDataToList().Result;
-
-            PerformFiltering();
-        }
 
         /// <summary>
         /// Methods

@@ -52,6 +52,32 @@
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="DataTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding Capacity}"/>
+                <TextBlock Text="{Binding Count, Mode=OneWay}"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="RentedMovieModelTemplate1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding CustomerId}"/>
+                <TextBlock Text="{Binding DateIssued}"/>
+                <TextBlock Text="{Binding DateReturned}"/>
+                <TextBlock Text="{Binding FirstName}"/>
+                <TextBlock Text="{Binding LastName}"/>
+                <TextBlock Text="{Binding MovieId}"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="RentedMovieModelTemplate2">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding CustomerId}"/>
+                <TextBlock Text="{Binding DateIssued}"/>
+                <TextBlock Text="{Binding DateReturned}"/>
+                <TextBlock Text="{Binding FirstName}"/>
+                <TextBlock Text="{Binding LastName}"/>
+                <TextBlock Text="{Binding MovieId}"/>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Grid x:Name="BaseGrid">
         <Grid.RowDefinitions>
@@ -166,7 +192,7 @@
                         </StackPanel>
                         <StackPanel x:Name="RentalHistoryStack" Margin="20,0,20,20" Orientation="Vertical" Grid.Row="2">
                             <TextBlock TextWrapping="Wrap" Text="Rental history" Margin="2,0,0,0"/>
-                            <ListBox x:Name="rented" ItemTemplate="{DynamicResource RentedMovieModelTemplate}" ItemsSource="{Binding SelectedMovieRentalStatus}" Background="#FFF9F9F9" MinHeight="236"/>
+                            <ListBox x:Name="rented" ItemTemplate="{DynamicResource RentedMovieModelTemplate}" ItemsSource="{Binding SelectedMovieRentalHistory}" Background="#FFF9F9F9" MinHeight="236"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -227,7 +253,20 @@
                             <TextBlock x:Name="lblAddress" TextWrapping="Wrap" Text="{Binding SelectedCustomer.Address, FallbackValue=Address, Mode=OneWay}" FontSize="24"/>
                             <TextBlock x:Name="lblPhone" TextWrapping="Wrap" Text="{Binding SelectedCustomer.Phone, FallbackValue=Phone}" HorizontalAlignment="Left" FontSize="24"/>
                         </StackPanel>
-                        <StackPanel x:Name="CustRentals" Orientation="Horizontal" Grid.Row="1"/>
+                        <Grid x:Name="CustRentals" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel x:Name="history" Orientation="Vertical" Margin="20">
+                                <TextBlock TextWrapping="Wrap" Text="Rental history:"/>
+                                <ListBox ItemTemplate="{DynamicResource RentedMovieModelTemplate1}" ItemsSource="{Binding CustomerRentalHistory, Mode=OneWay}" Height="270"/>
+                            </StackPanel>
+                            <StackPanel x:Name="current" Orientation="Vertical" Margin="20" Grid.Column="1">
+                                <TextBlock TextWrapping="Wrap" Text="Currently rented:" Margin="0"/>
+                                <ListBox ItemTemplate="{DynamicResource RentedMovieModelTemplate2}" ItemsSource="{Binding CustomerCurrentRentals, Mode=OneWay}" Height="270"/>
+                            </StackPanel>
+                        </Grid>
                         <StackPanel x:Name="CustMapStack" Orientation="Vertical" Grid.Row="2" Margin="20">
                             <TextBlock TextWrapping="Wrap" Text="Customer location:"/>
                             <Image x:Name="map" Source="dummy-map.jpg" Stretch="UniformToFill"/>
