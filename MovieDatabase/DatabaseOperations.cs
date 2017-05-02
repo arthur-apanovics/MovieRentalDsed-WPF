@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MovieDatabase.Delegates;
 using MovieDatabase.Models;
 
 namespace MovieDatabase
@@ -19,7 +18,7 @@ namespace MovieDatabase
         /// </summary>
 
         public static event EventHandler DataUpdateComplete;
-        
+
         readonly static string _connectionString = DatabaseConnectionString.String;
         readonly SqlConnection _connection = new SqlConnection(_connectionString);
 
@@ -125,7 +124,7 @@ namespace MovieDatabase
             using (_connection)
             {
                 String query = "SELECT * FROM dbo.CurrentlyRentedMovies ORDER by DateRented desc";
-                SqlCommand cmd = new SqlCommand(query, _connection) {CommandType = CommandType.Text};
+                SqlCommand cmd = new SqlCommand(query, _connection) { CommandType = CommandType.Text };
                 try
                 {
                     await _connection.OpenAsync().ConfigureAwait(false);
@@ -138,8 +137,9 @@ namespace MovieDatabase
                             Convert.ToInt32(reader["CustIDFK"]),
                             reader["FirstName"].ToString(),
                             reader["LastName"].ToString(),
+                            reader["Title"].ToString(),
                             Convert.ToDateTime(reader["DateRented"]),
-                            String.IsNullOrEmpty(reader["DateReturned"].ToString())?DateTime.MinValue : Convert.ToDateTime(reader["DateReturned"])));
+                            String.IsNullOrEmpty(reader["DateReturned"].ToString()) ? DateTime.MinValue : Convert.ToDateTime(reader["DateReturned"])));
                     }
                     reader.Close();
                 }
@@ -205,6 +205,50 @@ namespace MovieDatabase
 
             DataUpdateTimestamp();
             DataUpdateComplete(this, EventArgs.Empty);
+        }
+
+        public void RentOutMovie(MovieModel movie, CustomerModel customer)
+        {
+            string insertString = "insert into dbo.RentedMovies " +
+                                  "(MovieIDFK, CustIDFK, DateRented)" +
+                                  "values " +
+                                  "(@MovieIDFK, @CustIDFK, @DateRented)";
+
+            SqlCommand insertCommand = new SqlCommand(insertString, _connection);
+            insertCommand.Parameters.AddWithValue("@MovieIDFK", movie.MovieId);
+            insertCommand.Parameters.AddWithValue("@CustIDFK", customer.CustId);
+            insertCommand.Parameters.AddWithValue("@DateRented", DateTime.Now);
+
+            _connection.Open();
+            insertCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateTimestamp();
+            DataUpdateComplete(this, EventArgs.Empty);
+            //todo implement OnDataUpdateComplete to give more information about what updates have been made.
+            Console.WriteLine("Movie rented");
+        }
+
+        public void UpdateCustomerInTable(CustomerModel customer)
+        {
+            string insertString = "insert into dbo.Customer " +
+                                  "(FirstName, LastName, Address, Phone)" +
+                                  "values " +
+                                  "(@FirstName, @LastName, @Address, @Phone)";
+
+            SqlCommand insertCommand = new SqlCommand(insertString, _connection);
+            insertCommand.Parameters.AddWithValue("@FirstName", customer.FirstName);
+            insertCommand.Parameters.AddWithValue("@LastName", customer.LastName);
+            insertCommand.Parameters.AddWithValue("@Address", customer.Address);
+            insertCommand.Parameters.AddWithValue("@Phone", customer.Phone);
+
+            _connection.Open();
+            insertCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateTimestamp();
+            DataUpdateComplete(this, EventArgs.Empty);
+            Console.WriteLine("Customer added");
         }
     }
 }

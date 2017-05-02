@@ -29,13 +29,15 @@ namespace MovieDatabase.Data
             set
             {
                 _selectedCustomer = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedCustomer)));
 
                 // find rentals for selected customer and update properties.
-                FindCustomerRentedMovies(value, _allRentedMovies);
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedCustomer)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomerRentalHistory)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomerCurrentRentals)));
+                if (value != null)
+                {
+                    FindCustomerRentedMovies(value, _allRentedMovies);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomerRentalHistory)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomerCurrentRentals)));
+                }
             }
         }
 

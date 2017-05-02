@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MovieRentalDsed_WPF"
         xmlns:MovieDatabase="clr-namespace:MovieDatabase;assembly=MovieDatabase" xmlns:Data="clr-namespace:MovieDatabase.Data;assembly=MovieDatabase" xmlns:Properties="clr-namespace:MovieRentalDsed_WPF.Properties" xmlns:XamlConverters="clr-namespace:MovieRentalDsed_WPF.XamlConverters" x:Class="MovieRentalDsed_WPF.MainWindow"
         mc:Ignorable="d"
-        Title="DSED's Crazy Movie Rental" d:DesignWidth="1532" d:DesignHeight="924" MinWidth="500" MinHeight="600">
+        Title="DSED's Crazy Movie Rental" d:DesignWidth="1418" d:DesignHeight="840" MinWidth="1000" MinHeight="600" Width="Auto">
     <Window.Resources>
         <XamlConverters:DateMinToString x:Key="DateMinToString"/>
         <AlternationConverter x:Key="AlternationConverter"/>
@@ -81,10 +81,12 @@
     </Window.Resources>
     <Grid x:Name="BaseGrid">
         <Grid.RowDefinitions>
+            <RowDefinition Height="42"/>
             <RowDefinition/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="tcRentalTabs">
+        <TextBlock x:Name="lblSelectedItem" TextWrapping="Wrap" Text="Selected item *hidden*" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
+        <TabControl x:Name="tcRentalTabs" Grid.RowSpan="2">
             <TabItem x:Name="tiMovies" Header="Movies" FontSize="14" Width="150" Height="40">
                 <TabItem.DataContext>
                     <Data:MovieData/>
@@ -182,17 +184,17 @@
                         <StackPanel x:Name="MovieActionsStack" Grid.Row="1" Margin="20,20,20,0" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}">
                             <Button x:Name="btnIssueMovie" Content="Issue Movie" Padding="0,10" Margin="0,10" Background="#FFA3EA94" FontWeight="Bold" Click="btnIssueMovie_Click"/>
                             <Button x:Name="btnReturnMovie" Content="Return Movie" Padding="0,10" Margin="0,10" Background="#FF94C7EA" FontWeight="Bold"/>
-                            <Button x:Name="btnEditMovie" Content="Edit Movie Details" Padding="1,10" Margin="0,10" Background="#FFD8B9B9" FontWeight="Bold" Click="btnMovieOperation_Click"/>
+                            <Button x:Name="btnEditMovie" Content="Edit Movie Details" Padding="1,10" Margin="0,10" Background="#FFD8B9B9" FontWeight="Bold" Click="DataOperation_Click"/>
                         </StackPanel>
 
                         <StackPanel x:Name="MovieIdStack" Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,3">
-                            <Button x:Name="btnNewMovie" Content="New Movie" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3" Width="90" Click="btnMovieOperation_Click"/>
+                            <Button x:Name="btnNewMovie" Content="New Movie" HorizontalAlignment="Left" Margin="0,0,15,0" Background="#FFF3F3F3" Width="90" Click="DataOperation_Click"/>
                             <TextBlock x:Name="lblMovieId" TextWrapping="Wrap" Text="Movie ID:" Margin="0" Foreground="#FF9E9E9E"/>
                             <TextBlock x:Name="MovieId" TextWrapping="Wrap" Margin="0" Text="{Binding SelectedMovie.MovieId}" Foreground="#FF9E9E9E"/>
                         </StackPanel>
                         <StackPanel x:Name="RentalHistoryStack" Margin="20,0,20,20" Orientation="Vertical" Grid.Row="2">
                             <TextBlock TextWrapping="Wrap" Text="Rental history" Margin="2,0,0,0"/>
-                            <ListBox x:Name="rented" ItemTemplate="{DynamicResource RentedMovieModelTemplate}" ItemsSource="{Binding SelectedMovieRentalHistory}" Background="#FFF9F9F9" MinHeight="236"/>
+                            <ListBox x:Name="rented" ItemTemplate="{DynamicResource RentedMovieModelTemplate}" ItemsSource="{Binding SelectedMovieRentalHistory}" Background="#FFF9F9F9" MinHeight="236" MouseDoubleClick="rented_MouseDoubleClick"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -207,7 +209,7 @@
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="300"/>
                     </Grid.ColumnDefinitions>
-                    <Grid x:Name="CustomerList">
+                    <Grid x:Name="CustomerListGrid">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition/>
@@ -237,14 +239,24 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <ListBox ItemTemplate="{DynamicResource CustomerModelTemplate}" ItemsSource="{Binding CustomerList}" Grid.Row="1" SelectedIndex="0" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <ListBox x:Name="CustomerNames" ItemTemplate="{DynamicResource CustomerModelTemplate}" ItemsSource="{Binding CustomerList}" Grid.Row="1" SelectedIndex="0" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
-                    <Grid x:Name="CustomerDetails" Grid.Column="1">
+                    <Grid x:Name="CustomerDetailsGrid" Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition Height="2*"/>
                             <RowDefinition Height="2*"/>
                         </Grid.RowDefinitions>
+                        <Grid.Style>
+                            <Style TargetType="{x:Type Grid}">
+                                <Setter Property="Visibility" Value="Hidden" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedItems.Count, ElementName=CustomerNames}" Value="1">
+                                        <Setter Property="Visibility"  Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
                         <StackPanel x:Name="CustDetails" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0">
                             <StackPanel x:Name="NameStack" Orientation="Horizontal" HorizontalAlignment="Center">
                                 <TextBlock x:Name="lblFirstName" TextWrapping="Wrap" Text="{Binding SelectedCustomer.FirstName, FallbackValue=FirstName}" Margin="0,0,5,0" FontSize="48" FontWeight="Bold"/>
@@ -260,16 +272,16 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel x:Name="history" Orientation="Vertical" Margin="20">
                                 <TextBlock TextWrapping="Wrap" Text="Rental history:"/>
-                                <ListBox ItemTemplate="{DynamicResource RentedMovieModelTemplate1}" ItemsSource="{Binding CustomerRentalHistory, Mode=OneWay}" Height="270"/>
+                                <ListBox x:Name="CustRentHistory" ItemTemplate="{DynamicResource RentedMovieModelTemplate1}" ItemsSource="{Binding CustomerRentalHistory, Mode=OneWay}" Height="270" MouseDoubleClick="CustomerRentals_MouseDoubleClick"/>
                             </StackPanel>
                             <StackPanel x:Name="current" Orientation="Vertical" Margin="20" Grid.Column="1">
                                 <TextBlock TextWrapping="Wrap" Text="Currently rented:" Margin="0"/>
-                                <ListBox ItemTemplate="{DynamicResource RentedMovieModelTemplate2}" ItemsSource="{Binding CustomerCurrentRentals, Mode=OneWay}" Height="270"/>
+                                <ListBox x:Name="CustRentCurrent" ItemTemplate="{DynamicResource RentedMovieModelTemplate2}" ItemsSource="{Binding CustomerCurrentRentals, Mode=OneWay}" Height="270" MouseDoubleClick="CustomerRentals_MouseDoubleClick"/>
                             </StackPanel>
                         </Grid>
                         <StackPanel x:Name="CustMapStack" Orientation="Vertical" Grid.Row="2" Margin="20">
                             <TextBlock TextWrapping="Wrap" Text="Customer location:"/>
-                            <Image x:Name="map" Source="dummy-map.jpg" Stretch="UniformToFill"/>
+                            <Image x:Name="map" Source="Assets/dummy-map.jpg" Stretch="UniformToFill"/>
                         </StackPanel>
                     </Grid>
                     <Grid x:Name="CustomerOperationsGrid" Background="WhiteSmoke" Margin="0" Grid.Column="2" >
@@ -280,12 +292,12 @@
                             <RowDefinition Height="30"/>
                         </Grid.RowDefinitions>
                         <Border Background="#FFC4C78A" BorderThickness="0,0,0,5" BorderBrush="#FF858585" Padding="10">
-                            <Image x:Name="CustLogo" Source="user.png"/>
+                            <Image x:Name="CustLogo" Source="Assets/user.png"/>
                         </Border>
                         <StackPanel x:Name="CustActionsStack1" Grid.Row="1" Margin="20,20,20,0" IsEnabled="{Binding SelectedItems.Count, ElementName=MovieNames}">
                             <Button x:Name="btnIssueMovieToCust" Content="Issue Movie to Customer" Padding="0,10" Margin="0,10" Background="#FFA3EA94" FontWeight="Bold" Click="btnIssueMovie_Click"/>
                             <Button x:Name="btnReturnMovieToCust" Content="Return Rented Movie" Padding="0,10" Margin="0,10" Background="#FF94C7EA" FontWeight="Bold"/>
-                            <Button x:Name="btnEditCust" Content="Edit Customer Details" Padding="1,10" Margin="0,10" Background="#FFD8B9B9" FontWeight="Bold"/>
+                            <Button x:Name="btnEditCust" Content="Edit Customer Details" Padding="1,10" Margin="0,10" Background="#FFD8B9B9" FontWeight="Bold" Click="DataOperation_Click"/>
                         </StackPanel>
 
                         <StackPanel x:Name="CustIdStack" Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,3">
@@ -293,11 +305,10 @@
                             <TextBlock x:Name="lblCustId" TextWrapping="Wrap" Text="Customer ID:" Margin="0" Foreground="#FF9E9E9E"/>
                             <TextBlock x:Name="CustId" TextWrapping="Wrap" Margin="0" Text="{Binding SelectedCustomer.CustId}" Foreground="#FF9E9E9E"/>
                         </StackPanel>
-                        <StackPanel x:Name="RentalHistoryStack1" Margin="20,0,20,20" Orientation="Vertical" Grid.Row="2"/>
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="tiTest" Header="Rented Test">
+            <TabItem x:Name="tiTest" Header="Unreturned" FontSize="14">
                 <DataGrid x:Name="rentedMovies" ItemsSource="{Binding RentedMovies}">
                     <DataGrid.DataContext>
                         <Data:RentedMovieData/>
@@ -306,7 +317,7 @@
                 </DataGrid>
             </TabItem>
         </TabControl>
-        <StatusBar Grid.Row="1">
+        <StatusBar Grid.Row="2">
             <ProgressBar Style="{DynamicResource SimpleProgressBar}" Width="100" Height="13"/>
         </StatusBar>
         <Button x:Name="btnReload" Content="Debug.Reload" HorizontalAlignment="Right" Margin="0,11,10,0" VerticalAlignment="Top" Click="btnReload_Click"/>

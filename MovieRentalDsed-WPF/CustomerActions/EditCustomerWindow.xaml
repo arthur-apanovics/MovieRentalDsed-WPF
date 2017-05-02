@@ -1,0 +1,43 @@
+﻿<Window x:Class="MovieRentalDsed_WPF.CustomerActions.EditCustomerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MovieRentalDsed_WPF.CustomerActions"
+        mc:Ignorable="d"
+        Title="Edit Customer Details" d:DesignWidth="500" d:DesignHeight="250" MinWidth="500" MinHeight="250" Width="500" Height="250" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <UniformGrid Margin="20">
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBlock x:Name="lblId" TextWrapping="Wrap" Text="ID"/>
+                <TextBox x:Name="txtId" Height="23" TextWrapping="Wrap" Text="TextBox" Width="50" IsEnabled="False"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBlock x:Name="lblFName" TextWrapping="Wrap" Text="First name"/>
+                <TextBox x:Name="txtFName" Height="23" TextWrapping="Wrap" Text="TextBox" Width="150"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBlock x:Name="lblLName" TextWrapping="Wrap" Text="Last Name"/>
+                <TextBox x:Name="txtLName" Height="23" TextWrapping="Wrap" Text="TextBox" Width="150"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBlock x:Name="lblPhone" TextWrapping="Wrap" Text="Phone"/>
+                <TextBox x:Name="txtPhone" Height="23" TextWrapping="Wrap" Text="TextBox" Width="150"/>
+            </StackPanel>
+
+        </UniformGrid>
+        <StackPanel Margin="20,0,20,20" Grid.Row="1" Width="377" HorizontalAlignment="Left" >
+            <TextBlock x:Name="lblAddress" TextWrapping="Wrap" Text="Address"/>
+            <TextBox x:Name="txtAddress" Height="23" TextWrapping="Wrap" Text="TextBox"/>
+            <StackPanel x:Name="buttons" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button x:Name="btnCancel" Content="Cancel" Width="40" Margin="0,0,10,0" Click="btnCancel_Click"/>
+                <Button x:Name="btnSave" Content="Save" Width="40" Margin="10,0,0,0" Click="btnSave_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+    </Grid>
+</Window>

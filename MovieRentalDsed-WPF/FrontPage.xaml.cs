@@ -18,16 +18,27 @@ using System.Windows.Shapes;
 using MovieDatabase;
 using MovieDatabase.Data;
 using MovieDatabase.Models;
+using MovieRentalDsed_WPF.CustomerActions;
 
 namespace MovieRentalDsed_WPF
 {
     public partial class MainWindow : Window
     {
+        private MovieModel _movieToIssue;
+        private CustomerModel _customerToIssue;
+
         public MainWindow()
         {
             InitializeComponent();
             //TODO Add a dialog box for database server credentials.
+
+            //var movieDataCtor = new MovieData();
         }
+
+        /// <summary>
+        /// Click events here
+        /// </summary>
+
 
         private void btnReload_Click(object sender, RoutedEventArgs e)
         {
@@ -36,31 +47,100 @@ namespace MovieRentalDsed_WPF
 
         private void btnIssueMovie_Click(object sender, RoutedEventArgs e)
         {
-
+            MovieIssuing(sender);
         }
 
-        private void btnMovieOperation_Click(object sender, RoutedEventArgs e)
+        private void DataOperation_Click(object sender, RoutedEventArgs e)
+        {
+            DataOperation(sender);
+        }
+
+        private void CustomerRentals_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selected = sender as ListBox;
+            NavigateToMovie(selected.SelectedItem);
+        }
+
+        private void rented_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selected = sender as ListBox;
+            NavigateToCustomer(selected.SelectedItem);
+        }
+
+        /// <summary>
+        /// Methods here
+        /// </summary>
+
+        private void MovieIssuing(object sender)
+        {
+            var btn = sender as Button;
+            if (btn.Name == "btnIssueMovie")
+            {
+                _movieToIssue = MovieNames.SelectedItem as MovieModel;
+
+                if (_customerToIssue == null)
+                {
+                    //todo clean up tabindexes for controls on form. 
+                    tiCustomers.IsSelected = true;
+                    //todo add animation to txtSearchCustomers to focus user attention
+                    txtSearchCustomers.Focus(); //does not focus for some reason
+                }
+            }
+            else if (btn.Name == "btnIssueMovieToCust")
+            {
+                _customerToIssue = CustomerNames.SelectedItem as CustomerModel;
+
+                if (_movieToIssue == null)
+                {
+                    tiMovies.IsSelected = true;
+                    //todo add animation to txtSearchMovies to focus user attention
+                    txtSearchMovies.Focus(); //does not focus for some reason
+                }
+            }
+
+            if (_movieToIssue != null && _customerToIssue != null)
+            {
+                DatabaseOperations.DataUpdateComplete += UpdateAllData;
+
+                new RentalIssuer(_movieToIssue, _customerToIssue);
+
+                DatabaseOperations.DataUpdateComplete -= UpdateAllData;
+
+                MessageBox.Show("Movie has been issued!");
+
+                //reset variables back to null after movie has been issued.
+                _customerToIssue = null;
+                _movieToIssue = null;
+            }
+        }
+
+        private void DataOperation(object sender)
         {
             // create an event listener to refresh info on database updates
             DatabaseOperations.DataUpdateComplete += UpdateAllData;
 
-            var btnType = sender as Button;
-            int currentSelectedItem = MovieNames.SelectedIndex;
+            var btn = sender as Button;
 
             //todo_done cleanup repeated code.
-            if (btnType.Name == "btnEditMovie")
+            if (btn.Name == "btnEditMovie")
             {
                 var editDialog = new EditMovieWindow(MovieNames.SelectedItem as MovieModel);
                 editDialog.ShowDialog();
             }
-            else
+            else if(btn.Name == "btnNewMovie")
             {
                 var addDialog = new AddNewMovieWindow();
                 addDialog.ShowDialog();
             }
-
-            // on data update, selected item gets reset to -1. This method sets the value back to what it was before the update.
-            ReselectMovieAfterDataUpdate(currentSelectedItem);
+            else if(btn.Name == "btnEditCust")
+            {
+                var editCustDialog = new EditCustomerWindow(CustomerNames.SelectedItem as CustomerModel);
+                editCustDialog.ShowDialog();
+            }
+            else if (btn.Name == "btnNewCustomer")
+            {
+                
+            }
 
             // since the event is static (to make it global), detach listener to avoid duplicate event triggers
             DatabaseOperations.DataUpdateComplete -= UpdateAllData;
@@ -68,21 +148,47 @@ namespace MovieRentalDsed_WPF
 
         private void UpdateAllData(object sender, EventArgs e)
         {
+            int prevSelMovie = MovieNames.SelectedIndex;
+            int prevSelCustomer = CustomerNames.SelectedIndex;
+
             tiMovies.DataContext = new MovieData();
             tiCustomers.DataContext = new CustomerData();
+
+            ReselectItemsAfterDataUpdate(prevSelMovie, prevSelCustomer);
 
             Console.WriteLine($"Data in window has been refreshed, from {this.ToString()}");
         }
 
-        private void ReselectMovieAfterDataUpdate(int previousSelection)
+        private void ReselectItemsAfterDataUpdate(int prevSelMovie, int prevSelCustomer)
         {
-            MovieNames.SelectedIndex = previousSelection;
+            MovieNames.SelectedIndex = prevSelMovie;
+            CustomerNames.SelectedIndex = prevSelCustomer;
         }
 
         private void btnClearText_Click(object sender, RoutedEventArgs e)
         {
             txtSearchMovies.Text = String.Empty;
             txtSearchCustomers.Text = string.Empty;
+        }
+
+        private void NavigateToCustomer(object sender)
+        {
+            var selection = sender as RentedMovieModel;
+
+            CustomerNames.SelectedIndex = selection.CustomerId - 1;
+            CustomerNames.ScrollIntoView(CustomerNames.SelectedItem);
+
+            tiCustomers.Focus();
+        }
+
+        private void NavigateToMovie(object sender)
+        {
+            var selection = sender as RentedMovieModel;
+
+            MovieNames.SelectedIndex = selection.MovieId - 1;
+            MovieNames.ScrollIntoView(MovieNames.SelectedItem);
+
+            tiMovies.Focus();
         }
     }
 }
