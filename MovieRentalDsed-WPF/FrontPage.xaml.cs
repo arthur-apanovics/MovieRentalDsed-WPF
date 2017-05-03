@@ -67,6 +67,19 @@ namespace MovieRentalDsed_WPF
             NavigateToCustomer(selected.SelectedItem);
         }
 
+        private void btnClearText_Click(object sender, RoutedEventArgs e)
+        {
+            txtSearchMovies.Text = String.Empty;
+            txtSearchCustomers.Text = string.Empty;
+        }
+
+        private void btnSelectedItemCancel_Click(object sender, RoutedEventArgs e)
+        {
+            _customerToIssue = null;
+            _movieToIssue = null;
+            lblSelectedItem.Text = string.Empty;
+        }
+
         /// <summary>
         /// Methods here
         /// </summary>
@@ -80,6 +93,7 @@ namespace MovieRentalDsed_WPF
 
                 if (_customerToIssue == null)
                 {
+                    lblSelectedItem.Text = $"Select customer to rent \"{_movieToIssue.Title}\" or";
                     //todo clean up tabindexes for controls on form. 
                     tiCustomers.IsSelected = true;
                     //todo add animation to txtSearchCustomers to focus user attention
@@ -92,6 +106,7 @@ namespace MovieRentalDsed_WPF
 
                 if (_movieToIssue == null)
                 {
+                    lblSelectedItem.Text = $"Select a movie to rent to {_customerToIssue.FullName}";
                     tiMovies.IsSelected = true;
                     //todo add animation to txtSearchMovies to focus user attention
                     txtSearchMovies.Focus(); //does not focus for some reason
@@ -111,6 +126,7 @@ namespace MovieRentalDsed_WPF
                 //reset variables back to null after movie has been issued.
                 _customerToIssue = null;
                 _movieToIssue = null;
+                lblSelectedItem.Text = string.Empty;
             }
         }
 
@@ -139,7 +155,26 @@ namespace MovieRentalDsed_WPF
             }
             else if (btn.Name == "btnNewCustomer")
             {
-                
+                var addDialog = new NewCustomerWindow();
+                addDialog.ShowDialog();
+            }
+            else if (btn.Name == "btnDeleteMovie")
+            {
+                var movie = MovieNames.SelectedItem as MovieModel;
+                var choice = MessageBox.Show($"Are you sure you want to delete \"{movie.Title}\"?", "Confirm Delete", MessageBoxButton.OKCancel);
+                if (choice == MessageBoxResult.OK)
+                {
+                    new DatabaseOperations().DeleteMovieFromTable(movie);
+                }
+            }
+            else if (btn.Name == "btnDeleteCust")
+            {
+                var cust = CustomerNames.SelectedItem as CustomerModel;
+                var choice = MessageBox.Show($"Are you sure you want to delete \"{cust.FullName}\"?", "Confirm Delete", MessageBoxButton.OKCancel);
+                if (choice == MessageBoxResult.OK)
+                {
+                    new DatabaseOperations().DeleteCustomerFromTable(cust);
+                }
             }
 
             // since the event is static (to make it global), detach listener to avoid duplicate event triggers
@@ -163,12 +198,6 @@ namespace MovieRentalDsed_WPF
         {
             MovieNames.SelectedIndex = prevSelMovie;
             CustomerNames.SelectedIndex = prevSelCustomer;
-        }
-
-        private void btnClearText_Click(object sender, RoutedEventArgs e)
-        {
-            txtSearchMovies.Text = String.Empty;
-            txtSearchCustomers.Text = string.Empty;
         }
 
         private void NavigateToCustomer(object sender)

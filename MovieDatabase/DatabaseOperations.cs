@@ -20,17 +20,44 @@ namespace MovieDatabase
         public static event EventHandler DataUpdateComplete;
 
         readonly static string _connectionString = DatabaseConnectionString.String;
-        readonly SqlConnection _connection = new SqlConnection(_connectionString);
+        SqlConnection _connection = new SqlConnection(_connectionString);
+
 
 
         /// <summary>
-        /// Database operation methods
+        /// Some maintenance methods
         /// </summary>
 
-        private void DataUpdateTimestamp()
+        private void DataUpdateEventAndSignature(string methodName)
         {
-            Console.WriteLine($"Database updated on {DateTime.Now} from {this.ToString()}");
+            Console.WriteLine($"Database updated on {DateTime.Now} from {this.ToString()}, \n method called: {methodName}");
+            DataUpdateComplete(this, EventArgs.Empty);
         }
+
+        private static void PrintException(Exception e)
+        {
+            MessageBox.Show(e.ToString());
+            Console.WriteLine(e);
+        }
+
+        private static void CatchSqlConnectionExceptions(SqlException sqlException)
+        {
+            var retry = MessageBox.Show($"An error occured during connection:\n{sqlException.Message}\n\nUsually a retry fixes the error.\nTry again?", "SQL Connection Error", MessageBoxButtons.RetryCancel);
+            // TODO Restart creates a SECOND instance of the application ?!
+            if (retry == DialogResult.Retry)
+            {
+                Application.Restart();
+            }
+            // TODO Exit DOES NOT close the application ?!
+            else
+            {
+                Application.Exit();
+            }
+        }
+
+        /// <summary>
+        /// ADO.Net methods
+        /// </summary>
 
         //Customer data
         public async Task<List<CustomerModel>> GetAllCustomerDataToList()
@@ -59,10 +86,13 @@ namespace MovieDatabase
                     }
                     reader.Close();
                 }
+                catch (SqlException sqlException)
+                {
+                    CatchSqlConnectionExceptions(sqlException);
+                }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.ToString());
-                    Console.WriteLine(e);
+                    PrintException(e);
                 }
                 finally
                 {
@@ -103,10 +133,13 @@ namespace MovieDatabase
                     }
                     reader.Close();
                 }
+                catch (SqlException sqlException)
+                {
+                    CatchSqlConnectionExceptions(sqlException);
+                }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.ToString());
-                    Console.WriteLine(e);
+                    PrintException(e);
                 }
                 finally
                 {
@@ -117,6 +150,7 @@ namespace MovieDatabase
             }
         }
 
+        //Rentals data
         public async Task<List<RentedMovieModel>> GetAllRentedMovies()
         {
             List<RentedMovieModel> rentedIn = new List<RentedMovieModel>();
@@ -143,10 +177,13 @@ namespace MovieDatabase
                     }
                     reader.Close();
                 }
+                catch (SqlException sqlException)
+                {
+                    CatchSqlConnectionExceptions(sqlException);
+                }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.ToString());
-                    Console.WriteLine(e);
+                    PrintException(e);
                 }
                 finally
                 {
@@ -178,8 +215,7 @@ namespace MovieDatabase
             updateCommand.ExecuteNonQuery();
             _connection.Close();
 
-            DataUpdateTimestamp();
-            DataUpdateComplete(this, EventArgs.Empty);
+            DataUpdateEventAndSignature(nameof(UpdateMovieInTable));
         }
 
         // Add new movie to database
@@ -203,10 +239,25 @@ namespace MovieDatabase
             insertCommand.ExecuteNonQuery();
             _connection.Close();
 
-            DataUpdateTimestamp();
-            DataUpdateComplete(this, EventArgs.Empty);
+            DataUpdateEventAndSignature(nameof(AddMovieToTable));
         }
 
+        // Delete movie from table
+        public void DeleteMovieFromTable(MovieModel movie)
+        {
+            string deleteString = "delete from dbo.Movies where MovieID = @MovieID";
+
+            SqlCommand delCommand = new SqlCommand(deleteString, _connection);
+            delCommand.Parameters.AddWithValue("@MovieID", movie.MovieId);
+
+            _connection.Open();
+            delCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateEventAndSignature(nameof(DeleteMovieFromTable));
+        }
+
+        // Add new rented movie
         public void RentOutMovie(MovieModel movie, CustomerModel customer)
         {
             string insertString = "insert into dbo.RentedMovies " +
@@ -223,13 +274,34 @@ namespace MovieDatabase
             insertCommand.ExecuteNonQuery();
             _connection.Close();
 
-            DataUpdateTimestamp();
-            DataUpdateComplete(this, EventArgs.Empty);
-            //todo implement OnDataUpdateComplete to give more information about what updates have been made.
+            DataUpdateEventAndSignature(nameof(RentOutMovie));
+            //Done. implement OnDataUpdateComplete to give more information about what updates have been made.
             Console.WriteLine("Movie rented");
         }
-
+        
+        // Update customer data
         public void UpdateCustomerInTable(CustomerModel customer)
+        {
+            string updateString = "update dbo.Customer set " +
+                                  "FirstName = @FirstName, LastName = @LastName, Address = @Address, Phone = @Phone " +
+                                  "where CustID = @CustID";
+
+            SqlCommand insertCommand = new SqlCommand(updateString, _connection);
+            insertCommand.Parameters.AddWithValue("@CustID", customer.CustId);
+            insertCommand.Parameters.AddWithValue("@FirstName", customer.FirstName);
+            insertCommand.Parameters.AddWithValue("@LastName", customer.LastName);
+            insertCommand.Parameters.AddWithValue("@Address", customer.Address);
+            insertCommand.Parameters.AddWithValue("@Phone", customer.Phone);
+
+            _connection.Open();
+            insertCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateEventAndSignature(nameof(UpdateCustomerInTable));
+        }
+
+        // Add new customer to database
+        public void AddCustomerToTable(CustomerModel customer)
         {
             string insertString = "insert into dbo.Customer " +
                                   "(FirstName, LastName, Address, Phone)" +
@@ -246,9 +318,21 @@ namespace MovieDatabase
             insertCommand.ExecuteNonQuery();
             _connection.Close();
 
-            DataUpdateTimestamp();
-            DataUpdateComplete(this, EventArgs.Empty);
-            Console.WriteLine("Customer added");
+            DataUpdateEventAndSignature(nameof(AddCustomerToTable));
+        }
+
+        public void DeleteCustomerFromTable(CustomerModel cust)
+        {
+            string deleteString = "delete from dbo.Customer where CustId = @CustId";
+
+            SqlCommand delCommand = new SqlCommand(deleteString, _connection);
+            delCommand.Parameters.AddWithValue("@CustId", cust.CustId);
+
+            _connection.Open();
+            delCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateEventAndSignature(nameof(DeleteCustomerFromTable));
         }
     }
 }
