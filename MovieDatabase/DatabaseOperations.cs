@@ -17,16 +17,17 @@ namespace MovieDatabase
         /// Initializing variables.
         /// </summary>
 
+
         public static event EventHandler DataUpdateComplete;
 
         readonly static string _connectionString = DatabaseConnectionString.String;
         SqlConnection _connection = new SqlConnection(_connectionString);
 
 
-
         /// <summary>
         /// Some maintenance methods
         /// </summary>
+
 
         private void DataUpdateEventAndSignature(string methodName)
         {
@@ -58,6 +59,7 @@ namespace MovieDatabase
         /// <summary>
         /// ADO.Net methods
         /// </summary>
+
 
         //Customer data
         public async Task<List<CustomerModel>> GetAllCustomerDataToList()
@@ -279,6 +281,24 @@ namespace MovieDatabase
             Console.WriteLine("Movie rented");
         }
         
+        // Return a rented movie
+        public void ReturnMovie(RentedMovieModel rentData)
+        {
+            string updateString = "update dbo.RentedMovies set DateReturned = GETDATE() " +
+                                  "where MovieIDFK = @MovieIDFK and CustIDFK = @CustIDFK and DateRented = @DateRented";
+
+            SqlCommand updateCommand = new SqlCommand(updateString, _connection);
+            updateCommand.Parameters.AddWithValue("@MovieIDFK", rentData.MovieId);
+            updateCommand.Parameters.AddWithValue("@CustIDFK", rentData.CustomerId);
+            updateCommand.Parameters.AddWithValue("@DateRented", rentData.DateIssued);
+
+            _connection.Open();
+            updateCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateEventAndSignature(nameof(ReturnMovie));
+        }
+
         // Update customer data
         public void UpdateCustomerInTable(CustomerModel customer)
         {
@@ -321,6 +341,7 @@ namespace MovieDatabase
             DataUpdateEventAndSignature(nameof(AddCustomerToTable));
         }
 
+        // Delete customer from table
         public void DeleteCustomerFromTable(CustomerModel cust)
         {
             string deleteString = "delete from dbo.Customer where CustId = @CustId";

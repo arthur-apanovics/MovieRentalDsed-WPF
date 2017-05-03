@@ -50,6 +50,11 @@ namespace MovieRentalDsed_WPF
             MovieIssuing(sender);
         }
 
+        private void btnReturnMovie_Click(object sender, RoutedEventArgs e)
+        {
+            ReturnMovieHandler(sender);
+        }
+
         private void DataOperation_Click(object sender, RoutedEventArgs e)
         {
             DataOperation(sender);
@@ -59,6 +64,21 @@ namespace MovieRentalDsed_WPF
         {
             var selected = sender as ListBox;
             NavigateToMovie(selected.SelectedItem);
+        }
+
+        private void btnNav_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            var rentedItem = RentedMovies.SelectedItem as RentedMovieModel;
+
+            if (btn.Name == "btnNavToMovie")
+            {
+                NavigateToMovie(rentedItem);
+            }
+            else if (btn.Name == "btnNavToCust")
+            {
+                NavigateToCustomer(rentedItem);
+            }
         }
 
         private void rented_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -75,9 +95,7 @@ namespace MovieRentalDsed_WPF
 
         private void btnSelectedItemCancel_Click(object sender, RoutedEventArgs e)
         {
-            _customerToIssue = null;
-            _movieToIssue = null;
-            lblSelectedItem.Text = string.Empty;
+            ResetToNoSelection();
         }
 
         /// <summary>
@@ -124,10 +142,53 @@ namespace MovieRentalDsed_WPF
                 MessageBox.Show("Movie has been issued!");
 
                 //reset variables back to null after movie has been issued.
-                _customerToIssue = null;
-                _movieToIssue = null;
-                lblSelectedItem.Text = string.Empty;
+                ResetToNoSelection();
             }
+        }
+
+        private void ReturnMovieHandler(object sender)
+        {
+            var btn = sender as Button;
+
+            if (btn.Name == "btnReturnAMovie")
+            {
+                tiUnreturned.IsSelected = true;
+            }
+            else
+            {
+                ReturnMovie(btn.Name);
+            }
+        }
+
+        private void ReturnMovie(string senderName)
+        {
+            // create an event listener to refresh info on database updates
+            DatabaseOperations.DataUpdateComplete += UpdateAllData;
+
+            // Dummy variable to stop intellisense from complaining about possible null reference
+            var rentedItem = new RentedMovieModel(0, 0, "dummy", "name", "", DateTime.MinValue, DateTime.MinValue);
+            if (senderName == "btnReturnMovieViaCust")
+            {
+                rentedItem = CustRentCurrent.SelectedItem as RentedMovieModel;
+            }
+            else if (senderName == "btnReturnMovieViaRented")
+            {
+                rentedItem = RentedMovies.SelectedItem as RentedMovieModel;
+            }
+            
+            var choice = MessageBox.Show(
+                $"Return \"{rentedItem.MovieTitle}\"?\n\n" +
+                $"Rented by {rentedItem.FirstName} {rentedItem.LastName}\n" +
+                $"Rented on {rentedItem.DateIssued}",
+                "Confirm Return",
+                MessageBoxButton.OKCancel);
+            if (choice == MessageBoxResult.OK)
+            {
+                new DatabaseOperations().ReturnMovie(rentedItem);
+            }
+
+            // since the event is static (to make it global), detach listener to avoid duplicate event triggers
+            DatabaseOperations.DataUpdateComplete -= UpdateAllData;
         }
 
         private void DataOperation(object sender)
@@ -143,12 +204,12 @@ namespace MovieRentalDsed_WPF
                 var editDialog = new EditMovieWindow(MovieNames.SelectedItem as MovieModel);
                 editDialog.ShowDialog();
             }
-            else if(btn.Name == "btnNewMovie")
+            else if (btn.Name == "btnNewMovie")
             {
                 var addDialog = new AddNewMovieWindow();
                 addDialog.ShowDialog();
             }
-            else if(btn.Name == "btnEditCust")
+            else if (btn.Name == "btnEditCust")
             {
                 var editCustDialog = new EditCustomerWindow(CustomerNames.SelectedItem as CustomerModel);
                 editCustDialog.ShowDialog();
@@ -188,10 +249,18 @@ namespace MovieRentalDsed_WPF
 
             tiMovies.DataContext = new MovieData();
             tiCustomers.DataContext = new CustomerData();
+            tiUnreturned.DataContext = new RentedMovieData();
 
             ReselectItemsAfterDataUpdate(prevSelMovie, prevSelCustomer);
 
             Console.WriteLine($"Data in window has been refreshed, from {this.ToString()}");
+        }
+
+        private void ResetToNoSelection()
+        {
+            _customerToIssue = null;
+            _movieToIssue = null;
+            lblSelectedItem.Text = string.Empty;
         }
 
         private void ReselectItemsAfterDataUpdate(int prevSelMovie, int prevSelCustomer)

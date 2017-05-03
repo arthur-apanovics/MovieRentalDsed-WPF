@@ -16,7 +16,6 @@ namespace MovieDatabase.Data
         private MovieModel _selectedMovie;
         private string _filter;
         private List<RentedMovieModel> _selectedMovieRentalStatus;
-        //private Dictionary<RentedMovieModel, MovieModel> rentedDict;
 
         public MovieData()
         {
@@ -26,6 +25,8 @@ namespace MovieDatabase.Data
             _allMovieData = database.GetAllMovieDataToList().Result;
 
             RentedMovies = new RentedMovieData().RentedMovies;
+
+            FilterUnreturnedMovies(RentedMovies);
 
             PerformFiltering();
         }
@@ -37,6 +38,8 @@ namespace MovieDatabase.Data
         public ObservableCollection<MovieModel> MovieList { get; set; }
 
         public List<RentedMovieModel> RentedMovies { get; set; }
+
+        public List<RentedMovieModel> UnreturnedMovies { get; set; }
 
         public List<RentedMovieModel> SelectedMovieRentalHistory
         {
@@ -102,19 +105,10 @@ namespace MovieDatabase.Data
             }
         }
 
-        //private Dictionary<RentedMovieModel, MovieModel> PopulateRentals(List<MovieModel> movies, List<RentedMovieModel> rentals)
-        //{
-        //    var results = new Dictionary<RentedMovieModel, MovieModel>();
-
-        //    for (int i = 0; i < movies.Count; i++)
-        //    {
-        //        var findMovie = movies.Where(d => d.MovieId.Equals(rentals[i].MovieId));
-        //        results.Add(rentals[i], findMovie as MovieModel);
-        //        //movies.Find(x => x.MovieId == rentals[i].MovieId);
-        //    }
-
-        //    return results;
-        //}
+        private void FilterUnreturnedMovies(List<RentedMovieModel> rentedMovies)
+        {
+            UnreturnedMovies = rentedMovies.Where(x => x.DateReturned.Equals(DateTime.MinValue)).ToList();
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
