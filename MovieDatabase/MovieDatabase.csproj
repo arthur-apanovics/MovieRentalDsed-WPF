@@ -45,10 +45,13 @@
     <Compile Include="Data\CustomerData.cs" />
     <Compile Include="Data\MovieData.cs" />
     <Compile Include="Data\RentedMovieData.cs" />
+    <Compile Include="Data\StatsData.cs" />
     <Compile Include="Models\CustomerModel.cs" />
     <Compile Include="DatabaseOperations.cs" />
     <Compile Include="Models\MovieModel.cs" />
     <Compile Include="Models\RentedMovieModel.cs" />
+    <Compile Include="Models\StatsCustomersModel.cs" />
+    <Compile Include="Models\StatsMoviesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

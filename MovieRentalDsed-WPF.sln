@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieRentalDsed-WPF", "Movi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieDatabase", "MovieDatabase\MovieDatabase.csproj", "{917476A5-D914-47A3-A6F3-E2060528463E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{FA7197EB-B760-4C2C-AC3C-8FBFDEC40C8A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{917476A5-D914-47A3-A6F3-E2060528463E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{917476A5-D914-47A3-A6F3-E2060528463E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{917476A5-D914-47A3-A6F3-E2060528463E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA7197EB-B760-4C2C-AC3C-8FBFDEC40C8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA7197EB-B760-4C2C-AC3C-8FBFDEC40C8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA7197EB-B760-4C2C-AC3C-8FBFDEC40C8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA7197EB-B760-4C2C-AC3C-8FBFDEC40C8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

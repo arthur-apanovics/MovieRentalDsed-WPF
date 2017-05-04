@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MovieRentalDsed_WPF"
         xmlns:MovieDatabase="clr-namespace:MovieDatabase;assembly=MovieDatabase" xmlns:Data="clr-namespace:MovieDatabase.Data;assembly=MovieDatabase" xmlns:Properties="clr-namespace:MovieRentalDsed_WPF.Properties" xmlns:XamlConverters="clr-namespace:MovieRentalDsed_WPF.XamlConverters" x:Class="MovieRentalDsed_WPF.MainWindow"
         mc:Ignorable="d"
-        Title="DSED's Crazy Movie Rental" d:DesignWidth="1441" d:DesignHeight="870" MinWidth="1000" MinHeight="600" Width="Auto" Icon="Assets/cassette.png">
+        Title="DSED's Crazy Movie Rental" d:DesignWidth="1462" d:DesignHeight="870" MinWidth="1000" MinHeight="600" Width="Auto" Icon="Assets/cassette.png">
     <Window.Resources>
         <XamlConverters:DaysPassedConverter x:Key="DaysPassedConverter"/>
         <XamlConverters:DateMinToString x:Key="DateMinToString"/>
@@ -367,6 +367,35 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            <TabItem x:Name="tiStats" Header="Stats" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="54">
+                <TabItem.DataContext>
+                    <Data:StatsData/>
+                </TabItem.DataContext>
+                <Grid Background="White">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100px"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid x:Name="MostRentedMovies" Grid.Row="1" Margin="0" Background="White" ItemsSource="{Binding TopMovieStats, Mode=OneWay}" AutoGenerateColumns="False" >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding MovieTitle}" ClipboardContentBinding="{x:Null}" Width="5*" Header="Movie Title"/>
+                            <DataGridTextColumn Binding="{Binding TotalRentals}" ClipboardContentBinding="{x:Null}" Width="1*" Header="Times Rented"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <DataGrid x:Name="MostRentingCust" Grid.Column="1" Margin="0" Grid.Row="1" Background="White" ItemsSource="{Binding TopCustomers}" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding FullName}" ClipboardContentBinding="{x:Null}" Width="5*" Header="Customer Name"/>
+                            <DataGridTextColumn Binding="{Binding TotalRentals}" ClipboardContentBinding="{x:Null}" Width="1*" Header="Total Rentals"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock x:Name="lblMostRentedMovies" TextWrapping="Wrap" Text="Most Rented Movies" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="lblMostRentigCust" TextWrapping="Wrap" Text="Top Renting Customers" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Grid.Column="1"/>
+                </Grid>
+            </TabItem>
         </TabControl>
         <StatusBar Grid.Row="2">
             <StatusBarItem x:Name="reload" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -376,19 +405,25 @@
                 <ProgressBar Style="{DynamicResource SimpleProgressBar}" Width="100" Height="13" Margin="0,0,10,0"/>
             </StatusBarItem>
         </StatusBar>
-        <StackPanel x:Name="SelectedItemStack" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FFFFFEE9">
-            <StackPanel.Style>
-                <Style TargetType="{x:Type StackPanel}">
-                    <Setter Property="Visibility" Value="Visible"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Text.Length, ElementName=lblSelectedItem}" Value="0">
-                            <Setter Property="Visibility"  Value="Hidden"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Style>
-            <TextBlock x:Name="lblSelectedItem" TextWrapping="Wrap" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18"/>
-            <Button x:Name="btnSelectedItemCancel" Content="Cancel" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" Background="{x:Null}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="1" BorderBrush="#FFB0AAAA" Click="btnSelectedItemCancel_Click"/>
-        </StackPanel>
+        <Grid x:Name="SelectedItemGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="505"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <StackPanel x:Name="SelectedItemStack" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FFFFFEE9" Grid.Column="1" Margin="0">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text.Length, ElementName=lblSelectedItem}" Value="0">
+                                <Setter Property="Visibility"  Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock x:Name="lblSelectedItem" TextWrapping="Wrap" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18"/>
+                <Button x:Name="btnSelectedItemCancel" Content="Cancel" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" Background="{x:Null}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="1" BorderBrush="#FFB0AAAA" Click="btnSelectedItemCancel_Click"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

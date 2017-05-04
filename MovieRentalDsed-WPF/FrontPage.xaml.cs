@@ -135,6 +135,7 @@ namespace MovieRentalDsed_WPF
             {
                 DatabaseOperations.DataUpdateComplete += UpdateAllData;
 
+                // Not sure now that a seperate class is necessary for this opration..
                 new RentalIssuer(_movieToIssue, _customerToIssue);
 
                 DatabaseOperations.DataUpdateComplete -= UpdateAllData;

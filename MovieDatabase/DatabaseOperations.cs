@@ -20,7 +20,7 @@ namespace MovieDatabase
 
         public static event EventHandler DataUpdateComplete;
 
-        readonly static string _connectionString = DatabaseConnectionString.String;
+        static readonly string _connectionString = DatabaseConnectionString.String;
         SqlConnection _connection = new SqlConnection(_connectionString);
 
 
@@ -60,8 +60,9 @@ namespace MovieDatabase
         /// ADO.Net methods
         /// </summary>
 
+        ///// CUSTOMER DATA \\\\\
 
-        //Customer data
+        // Get Customer data
         public async Task<List<CustomerModel>> GetAllCustomerDataToList()
         {
             List<CustomerModel> customersIn = new List<CustomerModel>();
@@ -105,7 +106,66 @@ namespace MovieDatabase
             }
         }
 
-        // Movie data
+        // Update customer data
+        public void UpdateCustomerInTable(CustomerModel customer)
+        {
+            string updateString = "update dbo.Customer set " +
+                                  "FirstName = @FirstName, LastName = @LastName, Address = @Address, Phone = @Phone " +
+                                  "where CustID = @CustID";
+
+            SqlCommand insertCommand = new SqlCommand(updateString, _connection);
+            insertCommand.Parameters.AddWithValue("@CustID", customer.CustId);
+            insertCommand.Parameters.AddWithValue("@FirstName", customer.FirstName);
+            insertCommand.Parameters.AddWithValue("@LastName", customer.LastName);
+            insertCommand.Parameters.AddWithValue("@Address", customer.Address);
+            insertCommand.Parameters.AddWithValue("@Phone", customer.Phone);
+
+            _connection.Open();
+            insertCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateEventAndSignature(nameof(UpdateCustomerInTable));
+        }
+
+        // Add new customer to database
+        public void AddCustomerToTable(CustomerModel customer)
+        {
+            string insertString = "insert into dbo.Customer " +
+                                  "(FirstName, LastName, Address, Phone)" +
+                                  "values " +
+                                  "(@FirstName, @LastName, @Address, @Phone)";
+
+            SqlCommand insertCommand = new SqlCommand(insertString, _connection);
+            insertCommand.Parameters.AddWithValue("@FirstName", customer.FirstName);
+            insertCommand.Parameters.AddWithValue("@LastName", customer.LastName);
+            insertCommand.Parameters.AddWithValue("@Address", customer.Address);
+            insertCommand.Parameters.AddWithValue("@Phone", customer.Phone);
+
+            _connection.Open();
+            insertCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateEventAndSignature(nameof(AddCustomerToTable));
+        }
+
+        // Delete customer from table
+        public void DeleteCustomerFromTable(CustomerModel cust)
+        {
+            string deleteString = "delete from dbo.Customer where CustId = @CustId";
+
+            SqlCommand delCommand = new SqlCommand(deleteString, _connection);
+            delCommand.Parameters.AddWithValue("@CustId", cust.CustId);
+
+            _connection.Open();
+            delCommand.ExecuteNonQuery();
+            _connection.Close();
+
+            DataUpdateEventAndSignature(nameof(DeleteCustomerFromTable));
+        }
+
+        ///// MOVIE DATA \\\\\
+
+        // Get Movie data
         public async Task<List<MovieModel>> GetAllMovieDataToList()
         {
             List<MovieModel> moviesIn = new List<MovieModel>();
@@ -149,50 +209,6 @@ namespace MovieDatabase
                 }
 
                 return moviesIn;
-            }
-        }
-
-        //Rentals data
-        public async Task<List<RentedMovieModel>> GetAllRentedMovies()
-        {
-            List<RentedMovieModel> rentedIn = new List<RentedMovieModel>();
-
-            using (_connection)
-            {
-                String query = "SELECT * FROM dbo.CurrentlyRentedMovies ORDER by DateRented desc";
-                SqlCommand cmd = new SqlCommand(query, _connection) { CommandType = CommandType.Text };
-                try
-                {
-                    await _connection.OpenAsync().ConfigureAwait(false);
-                    SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
-
-                    while (await reader.ReadAsync().ConfigureAwait(false))
-                    {
-                        rentedIn.Add(new RentedMovieModel(
-                            Convert.ToInt32(reader["MovieID"]),
-                            Convert.ToInt32(reader["CustIDFK"]),
-                            reader["FirstName"].ToString(),
-                            reader["LastName"].ToString(),
-                            reader["Title"].ToString(),
-                            Convert.ToDateTime(reader["DateRented"]),
-                            String.IsNullOrEmpty(reader["DateReturned"].ToString()) ? DateTime.MinValue : Convert.ToDateTime(reader["DateReturned"])));
-                    }
-                    reader.Close();
-                }
-                catch (SqlException sqlException)
-                {
-                    CatchSqlConnectionExceptions(sqlException);
-                }
-                catch (Exception e)
-                {
-                    PrintException(e);
-                }
-                finally
-                {
-                    _connection.Close();
-                }
-
-                return rentedIn;
             }
         }
 
@@ -259,6 +275,52 @@ namespace MovieDatabase
             DataUpdateEventAndSignature(nameof(DeleteMovieFromTable));
         }
 
+        ///// RENTALS DATA \\\\\
+
+        //Rentals data
+        public async Task<List<RentedMovieModel>> GetAllRentedMovies()
+        {
+            List<RentedMovieModel> rentedIn = new List<RentedMovieModel>();
+
+            using (_connection)
+            {
+                String query = "SELECT * FROM dbo.CurrentlyRentedMovies ORDER by DateRented desc";
+                SqlCommand cmd = new SqlCommand(query, _connection) { CommandType = CommandType.Text };
+                try
+                {
+                    await _connection.OpenAsync().ConfigureAwait(false);
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        rentedIn.Add(new RentedMovieModel(
+                            Convert.ToInt32(reader["MovieID"]),
+                            Convert.ToInt32(reader["CustIDFK"]),
+                            reader["FirstName"].ToString(),
+                            reader["LastName"].ToString(),
+                            reader["Title"].ToString(),
+                            Convert.ToDateTime(reader["DateRented"]),
+                            String.IsNullOrEmpty(reader["DateReturned"].ToString()) ? DateTime.MinValue : Convert.ToDateTime(reader["DateReturned"])));
+                    }
+                    reader.Close();
+                }
+                catch (SqlException sqlException)
+                {
+                    CatchSqlConnectionExceptions(sqlException);
+                }
+                catch (Exception e)
+                {
+                    PrintException(e);
+                }
+                finally
+                {
+                    _connection.Close();
+                }
+
+                return rentedIn;
+            }
+        }
+
         // Add new rented movie
         public void RentOutMovie(MovieModel movie, CustomerModel customer)
         {
@@ -280,7 +342,7 @@ namespace MovieDatabase
             //Done. implement OnDataUpdateComplete to give more information about what updates have been made.
             Console.WriteLine("Movie rented");
         }
-        
+
         // Return a rented movie
         public void ReturnMovie(RentedMovieModel rentData)
         {
@@ -299,61 +361,91 @@ namespace MovieDatabase
             DataUpdateEventAndSignature(nameof(ReturnMovie));
         }
 
-        // Update customer data
-        public void UpdateCustomerInTable(CustomerModel customer)
+        ///// STATS DATA \\\\\
+
+        // Get stats for top rented movies
+        public async Task<List<StatsMoviesModel>> GetStatsForMovies()
         {
-            string updateString = "update dbo.Customer set " +
-                                  "FirstName = @FirstName, LastName = @LastName, Address = @Address, Phone = @Phone " +
-                                  "where CustID = @CustID";
+            List<StatsMoviesModel> movieStatsIn = new List<StatsMoviesModel>();
 
-            SqlCommand insertCommand = new SqlCommand(updateString, _connection);
-            insertCommand.Parameters.AddWithValue("@CustID", customer.CustId);
-            insertCommand.Parameters.AddWithValue("@FirstName", customer.FirstName);
-            insertCommand.Parameters.AddWithValue("@LastName", customer.LastName);
-            insertCommand.Parameters.AddWithValue("@Address", customer.Address);
-            insertCommand.Parameters.AddWithValue("@Phone", customer.Phone);
+            using (_connection)
+            {
+                String query = "SELECT * FROM dbo.StatsMoviesRentalTop";
+                SqlCommand cmd = new SqlCommand(query, _connection) { CommandType = CommandType.Text };
 
-            _connection.Open();
-            insertCommand.ExecuteNonQuery();
-            _connection.Close();
+                try
+                {
+                    await _connection.OpenAsync().ConfigureAwait(false);
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
 
-            DataUpdateEventAndSignature(nameof(UpdateCustomerInTable));
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        movieStatsIn.Add(new StatsMoviesModel(
+                                reader["Title"].ToString(),
+                                Convert.ToInt32(reader["Total Rentals"])));
+                    }
+                    reader.Close();
+                }
+                catch (SqlException sqlException)
+                {
+                    CatchSqlConnectionExceptions(sqlException);
+                }
+                catch (Exception e)
+                {
+                    PrintException(e);
+                }
+                finally
+                {
+                    _connection.Close();
+                }
+            }
+
+            return movieStatsIn;
         }
 
-        // Add new customer to database
-        public void AddCustomerToTable(CustomerModel customer)
+        //                customersIn.Add(new StatsCustomersModel(
+        //                        reader["Full Name"].ToString(),
+        //                        Convert.ToInt32(reader["Total Rented"])));
+
+        // Get stats for top customers
+        public async Task<List<StatsCustomersModel>> GetStatsForCustomers()
         {
-            string insertString = "insert into dbo.Customer " +
-                                  "(FirstName, LastName, Address, Phone)" +
-                                  "values " +
-                                  "(@FirstName, @LastName, @Address, @Phone)";
+            List<StatsCustomersModel> customersIn = new List<StatsCustomersModel>();
 
-            SqlCommand insertCommand = new SqlCommand(insertString, _connection);
-            insertCommand.Parameters.AddWithValue("@FirstName", customer.FirstName);
-            insertCommand.Parameters.AddWithValue("@LastName", customer.LastName);
-            insertCommand.Parameters.AddWithValue("@Address", customer.Address);
-            insertCommand.Parameters.AddWithValue("@Phone", customer.Phone);
+            // for some reason if the global variable "_connection" is used, an exception gets thrown, even though this method is a 100% copy of the method above.
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                String query = "SELECT * FROM dbo.StatsCustomerRentalTop";
+                SqlCommand cmd = new SqlCommand(query, connection) { CommandType = CommandType.Text };
 
-            _connection.Open();
-            insertCommand.ExecuteNonQuery();
-            _connection.Close();
+                try
+                {
+                    await connection.OpenAsync().ConfigureAwait(false);
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
 
-            DataUpdateEventAndSignature(nameof(AddCustomerToTable));
-        }
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        customersIn.Add(new StatsCustomersModel(
+                                reader["Full Name"].ToString(),
+                                Convert.ToInt32(reader["Total Rented"])));
+                    }
+                    reader.Close();
+                }
+                catch (SqlException sqlException)
+                {
+                    CatchSqlConnectionExceptions(sqlException);
+                }
+                catch (Exception e)
+                {
+                    PrintException(e);
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
 
-        // Delete customer from table
-        public void DeleteCustomerFromTable(CustomerModel cust)
-        {
-            string deleteString = "delete from dbo.Customer where CustId = @CustId";
-
-            SqlCommand delCommand = new SqlCommand(deleteString, _connection);
-            delCommand.Parameters.AddWithValue("@CustId", cust.CustId);
-
-            _connection.Open();
-            delCommand.ExecuteNonQuery();
-            _connection.Close();
-
-            DataUpdateEventAndSignature(nameof(DeleteCustomerFromTable));
+            return customersIn;
         }
     }
 }
