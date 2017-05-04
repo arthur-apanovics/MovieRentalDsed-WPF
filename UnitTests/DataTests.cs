@@ -1,13 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MovieRentalDsed_WPF.XamlConverters;
 
 namespace UnitTests
 {
-    class DataTests
+    [TestClass]
+    public class DataTests
     {
+        [TestMethod]
+        public void TestXamlConverter()
+        {
+            var xamlConv = new DateMinToString();
+            var result = xamlConv.Convert(DateTime.MinValue, null, null, CultureInfo.CurrentUICulture);
 
+            Assert.AreSame("Not returned", result);
+        }
     }
 }

@@ -68,7 +68,7 @@
                     <TextBlock TextWrapping="Wrap" Text="From" Margin="0,0,5,0"/>
                     <TextBlock Text="{Binding DateIssued, StringFormat=\{0:d\}}"/>
                     <TextBlock TextWrapping="Wrap" Text="to" Width="Auto" Margin="5,0"/>
-                    <TextBlock Text="{Binding DateReturned, StringFormat=\{0:d\}}"/>
+                    <TextBlock Text="{Binding DateReturned, StringFormat=\{0:d\}, Converter={StaticResource DateMinToString}}"/>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>

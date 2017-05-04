@@ -31,8 +31,6 @@ namespace MovieRentalDsed_WPF
         {
             InitializeComponent();
             //TODO Add a dialog box for database server credentials.
-
-            //var movieDataCtor = new MovieData();
         }
 
         /// <summary>
@@ -99,7 +97,7 @@ namespace MovieRentalDsed_WPF
         }
 
         /// <summary>
-        /// Methods here
+        /// Front Page Methods here
         /// </summary>
 
         private void MovieIssuing(object sender)
@@ -251,6 +249,7 @@ namespace MovieRentalDsed_WPF
             tiMovies.DataContext = new MovieData();
             tiCustomers.DataContext = new CustomerData();
             tiUnreturned.DataContext = new RentedMovieData();
+            tiStats.DataContext = new StatsData();
 
             ReselectItemsAfterDataUpdate(prevSelMovie, prevSelCustomer);
 
